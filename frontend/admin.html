@@ -303,7 +303,8 @@
         // Enforce page protection and admin role validation
         protectPage();
         const activeUser = Auth.getUser();
-        if (!activeUser || activeUser.username !== 'admin') {
+        const isAdmin = activeUser && (activeUser.username === 'admin' || activeUser.username === 'jerin_admin');
+        if (!isAdmin) {
             alert("Access Denied. Only the administrator account can enter the Admin Control Panel.");
             window.location.href = 'dashboard.html';
         }
