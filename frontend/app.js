@@ -5,6 +5,54 @@
 
 const API_BASE = '/api';
 
+// --- UI Theme (Light / Dark Mode) Management ---
+const Theme = {
+    init() {
+        const currentTheme = localStorage.getItem('mcq_theme') || 'dark';
+        this.apply(currentTheme);
+    },
+    
+    apply(theme) {
+        const html = document.documentElement;
+        if (theme === 'light') {
+            html.classList.remove('dark');
+            localStorage.setItem('mcq_theme', 'light');
+        } else {
+            html.classList.add('dark');
+            localStorage.setItem('mcq_theme', 'dark');
+        }
+        this.updateToggles();
+    },
+    
+    toggle() {
+        const isDark = document.documentElement.classList.contains('dark');
+        this.apply(isDark ? 'light' : 'dark');
+    },
+    
+    updateToggles() {
+        const isDark = document.documentElement.classList.contains('dark');
+        
+        // Desktop Toggle
+        const desktopToggle = document.getElementById('theme-toggle-desktop');
+        if (desktopToggle) {
+            desktopToggle.innerHTML = isDark 
+                ? '<i class="fas fa-sun text-yellow-400 text-sm"></i>' 
+                : '<i class="fas fa-moon text-indigo-400 text-sm"></i>';
+        }
+        
+        // Mobile Toggle
+        const mobileToggle = document.getElementById('theme-toggle-mobile');
+        if (mobileToggle) {
+            mobileToggle.innerHTML = isDark 
+                ? '<i class="fas fa-sun text-yellow-400 text-sm"></i> Light Mode' 
+                : '<i class="fas fa-moon text-indigo-400 text-sm"></i> Dark Mode';
+        }
+    }
+};
+
+// Initialize theme immediately to prevent visual flash
+Theme.init();
+
 // --- Session & Storage Management ---
 const Auth = {
     clearSession() {
@@ -220,7 +268,10 @@ function renderNavbar() {
                     ${navLinks}
                 </nav>
                 <!-- Auth / Actions (Desktop) -->
-                <div class="hidden md:block">
+                <div class="hidden md:flex items-center gap-3">
+                    <button id="theme-toggle-desktop" onclick="Theme.toggle()" class="p-2 rounded-lg hover:bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-all cursor-pointer flex items-center justify-center h-9 w-9 focus:outline-none">
+                        <i class="fas fa-sun text-yellow-400"></i>
+                    </button>
                     ${authSection}
                 </div>
                 <!-- Mobile Menu Button -->
@@ -235,12 +286,18 @@ function renderNavbar() {
         <div id="mobile-nav-panel" class="hidden md:hidden border-t border-white/5 bg-slate-950/90 backdrop-blur-xl px-4 py-4 space-y-4 shadow-lg">
             <nav class="flex flex-col space-y-1.5 text-gray-300">
                 ${mobileLinks}
+                <!-- Theme Toggle (Mobile) -->
+                <button id="theme-toggle-mobile" onclick="Theme.toggle()" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3 focus:outline-none cursor-pointer">
+                    <i class="fas fa-sun text-yellow-400"></i> Light Mode
+                </button>
             </nav>
             <div class="pt-4 border-t border-white/5">
                 ${mobileAuthSection}
             </div>
         </div>
     `;
+
+    Theme.updateToggles();
 }
 
 // Global mobile menu toggler helper
