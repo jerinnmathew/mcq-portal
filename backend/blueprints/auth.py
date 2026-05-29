@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 from backend.models import db, User, Stats
 import time
@@ -103,6 +103,7 @@ def login():
     user = User.query.filter_by(username=username).first()
 
     if not user or not user.check_password(password):
+        current_app.logger.warning(f"SECURITY ALERT: Failed login attempt for username '{username}' from IP {request.remote_addr}")
         return jsonify({"msg": "Invalid username or password"}), 401
     
     # Generate token
