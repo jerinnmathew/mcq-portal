@@ -36,7 +36,7 @@ This platform is structured with modern security protocols, stateless JWT sessio
 * **Flask-CORS**: Secure Cross-Origin Resource Sharing.
 
 ### Database:
-* **SQLite / PostgreSQL**: Configurable through environmental variables. SQLite acts as a zero-configuration out-of-the-box local fallback database.
+* **MySQL (AWS RDS Production) / SQLite (Local Dev)**: MySQL on AWS RDS (Relational Database Service) powers the production database layer for high availability and isolation. SQLite acts as a zero-configuration out-of-the-box local fallback database.
 
 ---
 
@@ -117,7 +117,7 @@ source venv/bin/activate
 ```
 
 ### 3. Install Dependencies
-Run pip install to fetch backend packages (Flask, SQLAlchemy, JWT, CORS, psycopg2, etc.):
+Run pip install to fetch backend packages (Flask, SQLAlchemy, JWT, CORS, pymysql, etc.):
 ```bash
 pip install -r requirements.txt
 ```
@@ -127,10 +127,10 @@ The portal is set up to automatically create and seed 10 default, high-quality c
 
 * **SQLite Default (Out-of-the-box)**: 
   No setup required. The `.env` file automatically fallbacks to `sqlite:///mcq_battle.db` in your workspace.
-* **PostgreSQL Configuration**:
-  To switch to PostgreSQL, configure your credentials inside your `.env` file:
+* **MySQL (AWS RDS) Configuration**:
+  To connect to your production MySQL database on AWS RDS, configure your credentials inside your `.env` file:
   ```env
-  DATABASE_URL=postgresql://username:password@localhost:5432/mcq_battle
+  DATABASE_URL=mysql+pymysql://username:password@rds-endpoint:3306/mcq_battle
   ```
 
 ### 5. Start the Application
