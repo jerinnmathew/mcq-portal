@@ -22,11 +22,13 @@ def create_app(config_class=Config):
     from backend.blueprints.quiz import quiz_bp
     from backend.blueprints.stats import stats_bp
     from backend.blueprints.admin import admin_bp
+    from backend.blueprints.ai_generator import ai_gen_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(quiz_bp, url_prefix='/api/quiz')
     app.register_blueprint(stats_bp, url_prefix='/api/stats')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    app.register_blueprint(ai_gen_bp, url_prefix='/api/admin')
 
     # Serve index.html at root
     @app.route('/')

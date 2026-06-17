@@ -178,6 +178,7 @@ function renderNavbar() {
             <a href="quiz.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Quiz Arena</a>
             <a href="leaderboard.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Leaderboard</a>
             <a href="profile.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Profile</a>
+            <a href="https://pyqportal.app/" target="_blank" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-red-400 transition-colors flex items-center gap-1.5"><i class="fas fa-file-pdf text-xs text-red-500"></i> PYQ Portal</a>
             ${isAdmin ? `<a href="admin.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-purple-400 transition-colors text-purple-300 border border-purple-500/20 bg-purple-500/5">Admin</a>` : ''}
         `;
         navLinks = linksHtml;
@@ -187,18 +188,21 @@ function renderNavbar() {
             <a href="quiz.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-gamepad text-indigo-500 text-base"></i> Quiz Arena</a>
             <a href="leaderboard.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-trophy text-yellow-500 text-base"></i> Leaderboard</a>
             <a href="profile.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-user-circle text-emerald-500 text-base"></i> Profile</a>
+            <a href="https://pyqportal.app/" target="_blank" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-red-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-file-pdf text-red-500 text-base"></i> PYQ Portal</a>
             ${isAdmin ? `<a href="admin.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-purple-300 hover:text-purple-400 hover:bg-purple-500/5 border border-purple-500/10 bg-purple-500/5 transition-all flex items-center gap-3"><i class="fas fa-user-shield text-base"></i> Admin Control</a>` : ''}
         `;
     } else {
         const linksHtml = `
             <a href="index.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Home</a>
             <a href="leaderboard.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Leaderboard</a>
+            <a href="https://pyqportal.app/" target="_blank" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-red-400 transition-colors flex items-center gap-1.5"><i class="fas fa-file-pdf text-xs text-red-500"></i> PYQ Portal</a>
         `;
         navLinks = linksHtml;
 
         mobileLinks = `
             <a href="index.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-home text-blue-500 text-base"></i> Home</a>
             <a href="leaderboard.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-trophy text-yellow-500 text-base"></i> Leaderboard</a>
+            <a href="https://pyqportal.app/" target="_blank" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-red-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-file-pdf text-red-500 text-base"></i> PYQ Portal</a>
         `;
     }
 
