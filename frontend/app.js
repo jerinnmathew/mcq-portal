@@ -337,7 +337,22 @@ function updateProfileFields(user, stats) {
         xpProgressEl.innerText = `${user.xp_points || 0} / ${nextMilestone} XP`;
         progressBar.style.width = `${progressPct}%`;
     }
+// Generic Number Count-Up Animation helper
+function animateValue(elementId, start, end, duration, suffix = "") {
+    const obj = document.getElementById(elementId);
+    if (!obj) return;
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        obj.innerHTML = Math.floor(progress * (end - start) + start) + suffix;
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
 }
+window.animateValue = animateValue;
 
 // Automatically init navbar and landing page elements if script loaded
 document.addEventListener('DOMContentLoaded', () => {

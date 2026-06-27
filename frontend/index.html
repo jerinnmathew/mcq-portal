@@ -93,15 +93,15 @@
                 <!-- Stats Snippet -->
                 <div class="grid grid-cols-3 gap-6 pt-8 border-t border-white/5">
                     <div>
-                        <div class="text-2xl font-bold text-slate-100">10+</div>
+                        <div class="text-2xl font-bold text-slate-100" id="stat-categories">0+</div>
                         <div class="text-xs text-slate-400">Core Categories</div>
                     </div>
                     <div>
-                        <div class="text-2xl font-bold text-slate-100">Instant</div>
-                        <div class="text-xs text-slate-400">Accuracy Stats</div>
+                        <div class="text-2xl font-bold text-slate-100" id="stat-accuracy">0%</div>
+                        <div class="text-xs text-slate-400">Instant Accuracy</div>
                     </div>
                     <div>
-                        <div class="text-2xl font-bold text-slate-100">Streak</div>
+                        <div class="text-2xl font-bold text-slate-100" id="stat-streak">0+</div>
                         <div class="text-xs text-slate-400">Streak Incentives</div>
                     </div>
                 </div>
@@ -202,5 +202,15 @@
 
     <!-- App JS module -->
     <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animate stats values
+            setTimeout(() => {
+                animateValue('stat-categories', 0, 10, 1200, "+");
+                animateValue('stat-accuracy', 0, 100, 1500, "%");
+                animateValue('stat-streak', 0, 3, 1000, "+");
+            }, 300); // Small delay for visual entry
+        });
+    </script>
 </body>
 </html>
