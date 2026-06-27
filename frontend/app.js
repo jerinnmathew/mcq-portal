@@ -171,7 +171,7 @@ function renderNavbar() {
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="index.html" class="flex items-center">
-                        <img src="logo.png" alt="MCQ Portal Logo" class="h-8 w-auto object-contain rounded-lg">
+                        <img src="assets/logo.png" alt="MCQ Portal Logo" class="h-8 w-auto object-contain rounded-lg">
                     </a>
                 </div>
                 <!-- Navigation Buttons & User Status -->
