@@ -5,49 +5,15 @@
 
 const API_BASE = '/api';
 
-// --- UI Theme (Light / Dark Mode) Management ---
+// --- UI Theme (Always Light Mode) ---
 const Theme = {
     init() {
-        const currentTheme = localStorage.getItem('mcq_theme') || 'dark';
-        this.apply(currentTheme);
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('mcq_theme', 'light');
     },
-    
-    apply(theme) {
-        const html = document.documentElement;
-        if (theme === 'light') {
-            html.classList.remove('dark');
-            localStorage.setItem('mcq_theme', 'light');
-        } else {
-            html.classList.add('dark');
-            localStorage.setItem('mcq_theme', 'dark');
-        }
-        this.updateToggles();
-    },
-    
-    toggle() {
-        const isDark = document.documentElement.classList.contains('dark');
-        this.apply(isDark ? 'light' : 'dark');
-    },
-    
-    updateToggles() {
-        const isDark = document.documentElement.classList.contains('dark');
-        
-        // Desktop Toggle
-        const desktopToggle = document.getElementById('theme-toggle-desktop');
-        if (desktopToggle) {
-            desktopToggle.innerHTML = isDark 
-                ? '<i class="fas fa-sun text-yellow-400 text-sm"></i>' 
-                : '<i class="fas fa-moon text-indigo-400 text-sm"></i>';
-        }
-        
-        // Mobile Toggle
-        const mobileToggle = document.getElementById('theme-toggle-mobile');
-        if (mobileToggle) {
-            mobileToggle.innerHTML = isDark 
-                ? '<i class="fas fa-sun text-yellow-400 text-sm"></i> Light Mode' 
-                : '<i class="fas fa-moon text-indigo-400 text-sm"></i> Dark Mode';
-        }
-    }
+    apply() {},
+    toggle() {},
+    updateToggles() {}
 };
 
 // Initialize theme immediately to prevent visual flash
@@ -169,143 +135,54 @@ function renderNavbar() {
     const isLoggedIn = Auth.isAuthenticated();
     const user = Auth.getUser();
 
-    let navLinks = '';
-    let mobileLinks = '';
-    if (isLoggedIn) {
-        const isAdmin = user && (user.username === 'admin' || user.username === 'jerin_admin');
-        const linksHtml = `
-            <a href="dashboard.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Dashboard</a>
-            <a href="quiz.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Quiz Arena</a>
-            <a href="leaderboard.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Leaderboard</a>
-            <a href="profile.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Profile</a>
-            <a href="https://pyqportal.app/" target="_blank" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-red-400 transition-colors flex items-center gap-1.5"><i class="fas fa-file-pdf text-xs text-red-500"></i> PYQ Portal</a>
-            ${isAdmin ? `<a href="admin.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-purple-400 transition-colors text-purple-300 border border-purple-500/20 bg-purple-500/5">Admin</a>` : ''}
-        `;
-        navLinks = linksHtml;
-        
-        mobileLinks = `
-            <a href="dashboard.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-chart-pie text-blue-500 text-base"></i> Dashboard</a>
-            <a href="quiz.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-gamepad text-indigo-500 text-base"></i> Quiz Arena</a>
-            <a href="leaderboard.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-trophy text-yellow-500 text-base"></i> Leaderboard</a>
-            <a href="profile.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-user-circle text-emerald-500 text-base"></i> Profile</a>
-            <a href="https://pyqportal.app/" target="_blank" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-red-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-file-pdf text-red-500 text-base"></i> PYQ Portal</a>
-            ${isAdmin ? `<a href="admin.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-purple-300 hover:text-purple-400 hover:bg-purple-500/5 border border-purple-500/10 bg-purple-500/5 transition-all flex items-center gap-3"><i class="fas fa-user-shield text-base"></i> Admin Control</a>` : ''}
-        `;
-    } else {
-        const linksHtml = `
-            <a href="index.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Home</a>
-            <a href="leaderboard.html" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-blue-400 transition-colors">Leaderboard</a>
-            <a href="https://pyqportal.app/" target="_blank" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-red-400 transition-colors flex items-center gap-1.5"><i class="fas fa-file-pdf text-xs text-red-500"></i> PYQ Portal</a>
-        `;
-        navLinks = linksHtml;
+    // Determine active class for Home vs Leaderboard
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const isHome = currentPage === 'index.html' || currentPage === '';
+    const isLeaderboard = currentPage === 'leaderboard.html';
 
-        mobileLinks = `
-            <a href="index.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-home text-blue-500 text-base"></i> Home</a>
-            <a href="leaderboard.html" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-trophy text-yellow-500 text-base"></i> Leaderboard</a>
-            <a href="https://pyqportal.app/" target="_blank" class="px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-red-400 hover:bg-white/5 transition-all flex items-center gap-3"><i class="fas fa-file-pdf text-red-500 text-base"></i> PYQ Portal</a>
-        `;
-    }
+    const homeClass = isHome ? 'active-nav-btn' : '';
+    const leaderboardClass = isLeaderboard ? 'active-nav-btn' : '';
 
-    const authSection = isLoggedIn && user
-        ? `
-            <div class="flex items-center gap-4">
-                <div class="hidden md:flex flex-col text-right">
-                    <span class="text-xs text-gray-400">Streak: 🔥 ${user.streak || 0}</span>
-                    <span class="text-sm font-semibold text-blue-400">${user.username}</span>
-                </div>
-                <div class="h-8 w-8 rounded-full ${getBadgeClass(user.badge)} flex items-center justify-center font-bold text-white text-xs ring-2 ring-white/10">
-                    ${user.username[0].toUpperCase()}
-                </div>
-                <button onclick="Auth.logout()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 transition-all cursor-pointer">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            </div>
-          `
-        : `
-            <div class="flex items-center gap-2">
-                <a href="login.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold hover:text-white text-gray-300 transition-all">Login</a>
-                <a href="register.html" class="px-4 py-2 rounded-lg text-sm font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20 transition-all">Register</a>
-            </div>
-          `;
-
-    const mobileAuthSection = isLoggedIn && user
-        ? `
-            <div class="flex flex-col gap-4">
-                <div class="flex items-center gap-3 px-2">
-                    <div class="h-10 w-10 rounded-full ${getBadgeClass(user.badge)} flex items-center justify-center font-bold text-white text-sm ring-2 ring-white/10">
+    const navButtons = `
+        <div class="flex items-center gap-3 ml-auto">
+            ${isLoggedIn && user ? `
+                <div class="flex items-center gap-3">
+                    <div class="hidden md:flex flex-col text-right">
+                        <span class="text-[10px] text-white/70 leading-none mb-1">Streak: ${user.streak || 0}</span>
+                        <span class="text-xs font-semibold text-white leading-none">${user.username}</span>
+                    </div>
+                    <div class="h-8 w-8 rounded-full ${getBadgeClass(user.badge)} flex items-center justify-center font-bold text-white text-xs ring-2 ring-white/10">
                         ${user.username[0].toUpperCase()}
                     </div>
-                    <div>
-                        <span class="text-sm font-bold text-blue-400 block">${user.username}</span>
-                        <span class="text-xs text-gray-400">Streak: 🔥 ${user.streak || 0} Days</span>
-                    </div>
+                    <button onclick="Auth.logout()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-white transition-all cursor-pointer">
+                        <i class="fas fa-sign-out-alt text-xs"></i> Logout
+                    </button>
                 </div>
-                <button onclick="Auth.logout()" class="w-full py-2.5 rounded-xl font-bold bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 transition-all cursor-pointer text-center text-sm flex items-center justify-center gap-2">
-                    <i class="fas fa-sign-out-alt text-xs"></i> Logout
-                </button>
-            </div>
-          `
-        : `
-            <div class="grid grid-cols-2 gap-3">
-                <a href="login.html" class="py-2.5 rounded-xl font-bold bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 transition-all text-center text-sm cursor-pointer">
-                    Login
-                </a>
-                <a href="register.html" class="py-2.5 rounded-xl font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-md shadow-blue-500/20 transition-all text-center text-sm cursor-pointer">
-                    Register
-                </a>
-            </div>
-          `;
+                <div class="h-6 w-px bg-white/20 hidden md:block"></div>
+            ` : ''}
+            <a href="index.html" class="nav-btn ${homeClass}">Home</a>
+            <a href="leaderboard.html" class="nav-btn ${leaderboardClass}">Leaderboard</a>
+        </div>
+    `;
 
     navbarContainer.innerHTML = `
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo -->
                 <div class="flex items-center">
-                    <a href="index.html" class="flex items-center gap-2">
-                        <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                            <i class="fas fa-graduation-cap text-white text-lg"></i>
-                        </div>
-                        <span class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent font-display">
-                            SEA-1 MCQ Battle
-                        </span>
+                    <a href="index.html" class="flex items-center">
+                        <img src="logo.png" alt="MCQ Portal Logo" class="h-8 w-auto object-contain rounded-lg">
                     </a>
                 </div>
-                <!-- Links (Desktop) -->
-                <nav class="hidden md:flex space-x-2 text-gray-300">
-                    ${navLinks}
-                </nav>
-                <!-- Auth / Actions (Desktop) -->
-                <div class="hidden md:flex items-center gap-3">
-                    <button id="theme-toggle-desktop" onclick="Theme.toggle()" class="p-2 rounded-lg hover:bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-all cursor-pointer flex items-center justify-center h-9 w-9 focus:outline-none">
-                        <i class="fas fa-sun text-yellow-400"></i>
-                    </button>
-                    ${authSection}
-                </div>
-                <!-- Mobile Menu Button -->
-                <div class="flex items-center md:hidden">
-                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 border border-white/10 transition-all cursor-pointer focus:outline-none">
-                        <i class="fas fa-bars text-lg" id="mobile-menu-icon"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- Mobile Dropdown Panel -->
-        <div id="mobile-nav-panel" class="hidden md:hidden border-t border-white/5 bg-slate-950/90 backdrop-blur-xl px-4 py-4 space-y-4 shadow-lg">
-            <nav class="flex flex-col space-y-1.5 text-gray-300">
-                ${mobileLinks}
-                <!-- Theme Toggle (Mobile) -->
-                <button id="theme-toggle-mobile" onclick="Theme.toggle()" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold hover:text-blue-400 hover:bg-white/5 transition-all flex items-center gap-3 focus:outline-none cursor-pointer">
-                    <i class="fas fa-sun text-yellow-400"></i> Light Mode
-                </button>
-            </nav>
-            <div class="pt-4 border-t border-white/5">
-                ${mobileAuthSection}
+                <!-- Navigation Buttons & User Status -->
+                ${navButtons}
             </div>
         </div>
     `;
 
     Theme.updateToggles();
 }
+
 
 // Global mobile menu toggler helper
 window.toggleMobileMenu = function() {
@@ -398,7 +275,7 @@ function updateProfileFields(user, stats) {
     const badgeEl = document.getElementById('student-badge');
     if (badgeEl) {
         const badge = user.badge || 'Bronze';
-        badgeEl.innerText = `🔥 ${badge.toUpperCase()} BADGE`;
+        badgeEl.innerText = `${badge.toUpperCase()} BADGE`;
         
         // Remove existing class properties
         badgeEl.className = 'px-2 py-0.5 rounded text-[10px] font-bold border';
@@ -461,6 +338,22 @@ function updateProfileFields(user, stats) {
         progressBar.style.width = `${progressPct}%`;
     }
 }
+// Generic Number Count-Up Animation helper
+function animateValue(elementId, start, end, duration, suffix = "") {
+    const obj = document.getElementById(elementId);
+    if (!obj) return;
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        obj.innerHTML = Math.floor(progress * (end - start) + start) + suffix;
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+window.animateValue = animateValue;
 
 // Automatically init navbar and landing page elements if script loaded
 document.addEventListener('DOMContentLoaded', () => {

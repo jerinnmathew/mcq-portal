@@ -1,82 +1,148 @@
-/* Global Styling Overrides and Custom Classes for SEA-1 MCQ Battle Platform */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
 
 :root {
-    --font-primary: 'Inter', sans-serif;
-    --font-display: 'Outfit', sans-serif;
+    /* Primary Colors - University Blue & Purple */
+    --primary-blue: #2563EB;
+    --primary-purple: #7C3AED;
+    --primary-dark: #1E40AF;
+    
+    /* Accent Colors */
+    --accent-cyan: #06B6D4;
+    --accent-green: #10B981;
+    --accent-orange: #F59E0B;
+    --accent-red: #EF4444;
+    
+    /* Neutral Colors */
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-400: #9CA3AF;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --gray-900: #111827;
+    
+    /* Semantic Colors */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F9FAFB;
+    --text-primary: #111827;
+    --text-secondary: #6B7280;
+    --border-color: #E5E7EB;
+    
+    /* Shadows */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    
+    /* Border Radius */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
 }
 
 body {
-    font-family: var(--font-primary);
-    background-color: #0b0f19;
-    color: #e2e8f0;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    max-width: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
 }
 
-/* Glassmorphism Styles */
-.glass-panel {
-    background: rgba(17, 24, 39, 0.6);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+/* Navbar Custom Theme (Matches PYQ Portal color & text styling) */
+#navbar-container {
+    background: linear-gradient(to right, var(--primary-blue), var(--primary-purple)) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
-.glass-card {
-    background: rgba(30, 41, 59, 0.45);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.glass-card:hover {
-    background: rgba(30, 41, 59, 0.6);
-    border-color: rgba(255, 255, 255, 0.12);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-}
-
-.glass-input {
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #f8fafc;
+#navbar-container nav a {
+    color: rgba(255, 255, 255, 0.8) !important;
     transition: all 0.2s ease-in-out;
 }
 
-.glass-input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-    background: rgba(15, 23, 42, 0.8);
+#navbar-container nav a:hover {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-/* Custom Backgrounds & Gradients */
-.bg-mesh {
-    background-image: 
-        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
-        radial-gradient(at 50% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%);
+/* Active Nav Pill State */
+#navbar-container nav a.active-nav-link {
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+/* Navigation buttons in Navbar */
+#navbar-container .nav-btn {
+    color: #ffffff !important;
+    background-color: transparent !important;
+    background: none !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    padding: 0.4rem 1rem !important;
+    border-radius: 0.5rem !important;
+    transition: all 0.2s ease-in-out !important;
+    border: 1px solid transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-@keyframes slideIn {
-    from { transform: translateX(-15px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+#navbar-container .nav-btn:hover {
+    background-color: #ffffff !important;
+    color: var(--primary-blue) !important;
+    box-shadow: var(--shadow-sm) !important;
 }
 
-@keyframes glowPulse {
-    0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.2); }
-    50% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+/* Active Nav Button State */
+#navbar-container .nav-btn.active-nav-btn {
+    color: #ffffff !important;
+    background-color: transparent !important;
+    background: none !important;
+    font-weight: 700 !important;
+}
+
+#navbar-container .nav-btn.active-nav-btn:not([href="index.html"]) {
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+}
+
+#navbar-container .nav-btn.active-nav-btn:hover {
+    background-color: #ffffff !important;
+    color: var(--primary-blue) !important;
+    box-shadow: var(--shadow-sm) !important;
+    border-color: transparent !important;
+}
+
+/* Text Gradient styling using branding colors */
+.text-gradient-shine {
+    background: linear-gradient(to right, var(--primary-blue), var(--primary-purple), var(--primary-blue));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textShine 4s linear infinite;
+    display: inline-block;
 }
 
 @keyframes textShine {
@@ -85,196 +151,172 @@ h1, h2, h3, h4, h5, h6 {
     100% { background-position: 0% 50%; }
 }
 
-.animate-fade-in {
-    animation: fadeIn 0.4s ease-out forwards;
+/* Battle Arena mockup card custom design (Light Mode Panel) */
+#profile-logged-in {
+    background: var(--bg-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    box-shadow: var(--shadow-lg) !important;
 }
 
-.animate-slide-in {
-    animation: slideIn 0.3s ease-out forwards;
+#profile-logged-in h3 {
+    color: var(--text-primary) !important;
 }
 
-.glow-active {
-    animation: glowPulse 2s infinite ease-in-out;
+#profile-logged-in p,
+#profile-logged-in span,
+#profile-logged-in div:not(#student-progress-bar) {
+    color: var(--text-secondary) !important;
 }
 
-.text-gradient-shine {
-    background: linear-gradient(to right, #60a5fa, #c084fc, #f472b6, #60a5fa);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: textShine 4s linear infinite;
+/* Icon box styling inside the mockup card */
+#battle-arena-card .h-16.w-16 {
+    background: rgba(37, 99, 235, 0.08) !important;
+    border-color: rgba(37, 99, 235, 0.15) !important;
 }
 
-/* Rank Badges Styles */
-.badge-platinum {
-    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%);
-    box-shadow: 0 0 12px rgba(226, 232, 240, 0.3);
+#battle-arena-card .h-16.w-16 i {
+    color: var(--primary-blue) !important;
 }
 
-.badge-gold {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
-    box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+#battle-arena-card a[href="login.html"],
+#battle-arena-card a[href="register.html"] {
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple)) !important;
+    border: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
+    transition: all 0.2s ease !important;
 }
 
-.badge-silver {
-    background: linear-gradient(135deg, #94a3b8 0%, #64748b 50%, #475569 100%);
-    box-shadow: 0 0 12px rgba(148, 163, 184, 0.3);
+#battle-arena-card a[href="login.html"]:hover,
+#battle-arena-card a[href="register.html"]:hover {
+    background: linear-gradient(135deg, #1d4ed8, #6d28d9) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3) !important;
 }
 
-.badge-bronze {
-    background: linear-gradient(135deg, #b45309 0%, #78350f 50%, #451a03 100%);
-    box-shadow: 0 0 12px rgba(180, 83, 9 0.2);
+/* Progress bar inside profile board when logged in */
+#battle-arena-card #student-progress-bar {
+    background: linear-gradient(to right, var(--primary-blue), var(--primary-purple)) !important;
 }
 
-/* Podiums for Top 3 Leaders */
-.podium-1 {
-    border: 2px solid rgba(251, 191, 36, 0.5);
-    background: linear-gradient(180deg, rgba(251, 191, 36, 0.15) 0%, rgba(30, 41, 59, 0.4) 100%);
+#battle-arena-card .w-full.bg-slate-950 {
+    background: var(--gray-200) !important;
 }
 
-.podium-2 {
-    border: 2px solid rgba(148, 163, 184, 0.5);
-    background: linear-gradient(180deg, rgba(148, 163, 184, 0.12) 0%, rgba(30, 41, 59, 0.4) 100%);
+/* Accuracy / score highlight values */
+#battle-arena-card #student-score {
+    color: var(--primary-blue) !important;
+    font-weight: 800 !important;
 }
 
-.podium-3 {
-    border: 2px solid rgba(180, 83, 9, 0.5);
-    background: linear-gradient(180deg, rgba(180, 83, 9, 0.1) 0%, rgba(30, 41, 59, 0.4) 100%);
+#battle-arena-card #student-accuracy {
+    color: var(--accent-green) !important;
+    font-weight: 800 !important;
 }
 
-/* Custom Scrollbar for sleek UI */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+#battle-arena-card #student-xp-progress {
+    color: var(--primary-blue) !important;
+    font-weight: 800 !important;
 }
 
-::-webkit-scrollbar-track {
-    background: #0f172a;
+/* Gradient button for View Standings (Matches Start Your Battle style) */
+#btn-view-standings {
+    background: linear-gradient(to right, var(--primary-blue), var(--primary-purple)) !important;
+    border: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2), 0 4px 6px -2px rgba(124, 58, 237, 0.2) !important;
+    transition: all 0.25s ease-in-out !important;
 }
 
-::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 4px;
+#btn-view-standings:hover {
+    background: linear-gradient(to right, var(--primary-dark), var(--primary-purple)) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 10px 20px -3px rgba(37, 99, 235, 0.3), 0 4px 10px -2px rgba(124, 58, 237, 0.3) !important;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+/* Enforce visibility/contrast of slate and gray utilities in Light Mode */
+.text-slate-100,
+.text-slate-200,
+.text-slate-300,
+.text-gray-200,
+.text-gray-300 {
+    color: var(--text-primary) !important;
 }
 
-/* Option Buttons inside Quiz */
-.quiz-option {
-    background: rgba(30, 41, 59, 0.3);
-    border: 2px solid rgba(255, 255, 255, 0.08);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+.text-slate-400,
+.text-slate-500,
+.text-gray-400,
+.text-gray-500 {
+    color: var(--text-secondary) !important;
 }
 
-.quiz-option:hover:not(.selected):not(.correct):not(.incorrect) {
-    background: rgba(59, 130, 246, 0.08);
-    border-color: rgba(59, 130, 246, 0.4);
-    transform: translateX(4px);
+.border-white\/5,
+.border-white\/10 {
+    border-color: var(--border-color) !important;
 }
 
-.quiz-option.selected {
-    background: rgba(59, 130, 246, 0.18);
-    border-color: #3b82f6;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+/* Ensure background white transparencies render nicely on light canvas */
+.bg-white\/5 {
+    background-color: var(--gray-100) !important;
 }
 
-.quiz-option.correct {
-    background: rgba(16, 185, 129, 0.18) !important;
-    border-color: #10b981 !important;
-    color: #34d399 !important;
+.bg-white\/10 {
+    background-color: var(--gray-200) !important;
 }
 
-.quiz-option.incorrect {
-    background: rgba(239, 68, 68, 0.18) !important;
-    border-color: #ef4444 !important;
-    color: #f87171 !important;
+
+/* Footer styling with gradient background and white text */
+footer {
+    background: linear-gradient(to right, var(--primary-blue), var(--primary-purple)) !important;
+    border-top: none !important;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
 }
 
-/* Glowing timer circle */
-.timer-pulse {
-    animation: glowPulse 1s infinite alternate;
+footer span,
+footer a,
+footer p,
+footer .text-gray-500,
+footer .text-slate-500 {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    -webkit-text-fill-color: initial !important;
+    display: inline-block !important;
 }
 
-/* --- Light Mode Styling Overrides --- */
-html:not(.dark) body {
-    background-color: #f8fafc;
-    color: #0f172a;
+/* Navbar text readability enhancements */
+#navbar-container .text-gray-400,
+#navbar-container .text-slate-400 {
+    color: rgba(255, 255, 255, 0.7) !important;
 }
 
-html:not(.dark) .glass-panel {
-    background: rgba(255, 255, 255, 0.7);
-    border-color: rgba(15, 23, 42, 0.08);
-    color: #0f172a;
+#navbar-container .text-blue-400 {
+    color: #ffffff !important;
+    font-weight: 700 !important;
 }
 
-html:not(.dark) .glass-card {
-    background: rgba(255, 255, 255, 0.85);
-    border-color: rgba(15, 23, 42, 0.06);
-    color: #0f172a;
+/* Navbar mobile scaling and optimization */
+@media (max-width: 640px) {
+    #navbar-container .nav-btn {
+        padding: 0.35rem 0.6rem !important;
+        font-size: 0.75rem !important;
+    }
+    #navbar-container button[onclick="Auth.logout()"] {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.7rem !important;
+    }
+    #navbar-container .gap-3 {
+        gap: 0.5rem !important;
+    }
+    #navbar-container .h-8.w-8 {
+        height: 1.75rem !important;
+        width: 1.75rem !important;
+        font-size: 0.7rem !important;
+    }
 }
 
-html:not(.dark) .glass-card:hover {
-    background: rgba(255, 255, 255, 0.95);
-    border-color: rgba(15, 23, 42, 0.12);
-    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
-}
-
-html:not(.dark) .glass-input {
-    background: rgba(255, 255, 255, 0.9);
-    border-color: rgba(15, 23, 42, 0.15);
-    color: #0f172a;
-}
-
-html:not(.dark) .glass-input:focus {
-    background: #ffffff;
-    border-color: #3b82f6;
-}
-
-html:not(.dark) .bg-mesh {
-    background-image: 
-        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.04) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.04) 0px, transparent 50%),
-        radial-gradient(at 50% 100%, rgba(236, 72, 153, 0.02) 0px, transparent 50%);
-}
-
-html:not(.dark) .text-slate-100 { color: #0f172a; }
-html:not(.dark) .text-slate-200 { color: #1e293b; }
-html:not(.dark) .text-slate-300 { color: #334155; }
-html:not(.dark) .text-slate-400 { color: #475569; }
-html:not(.dark) .text-slate-500 { color: #64748b; }
-html:not(.dark) .text-gray-300 { color: #1e293b; }
-html:not(.dark) .text-gray-400 { color: #475569; }
-html:not(.dark) .text-gray-500 { color: #64748b; }
-
-html:not(.dark) .bg-slate-950 { background-color: #e2e8f0; }
-html:not(.dark) .bg-slate-950/60 { background-color: rgba(226, 232, 240, 0.6); }
-
-html:not(.dark) .quiz-option {
-    background: rgba(255, 255, 255, 0.5);
-    border-color: rgba(15, 23, 42, 0.08);
-    color: #0f172a;
-}
-
-html:not(.dark) .quiz-option:hover:not(.selected) {
-    background: rgba(59, 130, 246, 0.05);
-    border-color: rgba(59, 130, 246, 0.2);
-}
-
-html:not(.dark) .quiz-option.selected {
-    background: rgba(59, 130, 246, 0.08) !important;
-    border-color: #3b82f6 !important;
-    color: #1d4ed8 !important;
-}
-
-html:not(.dark) .bg-white/5 { background-color: rgba(15, 23, 42, 0.03); }
-html:not(.dark) .border-white/5 { border-color: rgba(15, 23, 42, 0.06); }
-html:not(.dark) .border-white/10 { border-color: rgba(15, 23, 42, 0.1); }
-html:not(.dark) .text-blue-400 { color: #2563eb; }
-html:not(.dark) .text-emerald-400 { color: #059669; }
-
-html:not(.dark) td.py-3.5 { color: #1e293b; }
-html:not(.dark) th.py-3.5 { color: #475569; }
-html:not(.dark) #leaderboard-tbody tr:hover { background-color: rgba(15, 23, 42, 0.02); }
-html:not(.dark) .bg-slate-900\/40 { background-color: rgba(15, 23, 42, 0.03); }
