@@ -14,15 +14,15 @@ _SSO_ALGORITHM = "HS256"
 
 def _sanitize_next_path(next_path: str) -> str:
     if not next_path:
-        return "/dashboard"
+        return "/"
 
     parsed = urlparse(next_path)
     if parsed.scheme or parsed.netloc:
-        return "/dashboard"
+        return "/"
 
     path = parsed.path
     if not path.startswith("/") or path.startswith("//"):
-        return "/dashboard"
+        return "/"
 
     if path == "/dashboard.html":
         path = "/dashboard"
@@ -62,7 +62,7 @@ def _verify_sso_token(token: str) -> dict | None:
 def sso_login():
     """Accept an SSO JWT, create or update the local user, and log them in."""
     token = request.args.get("token", "").strip()
-    next_path = _sanitize_next_path(request.args.get("next", "/dashboard"))
+    next_path = _sanitize_next_path(request.args.get("next", "/"))
 
     if not token:
         return redirect("/login?error=missing_token")
