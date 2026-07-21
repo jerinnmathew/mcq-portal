@@ -63,30 +63,45 @@
         
         <div class="w-full max-w-md glass-card rounded-2xl p-8 space-y-6 animate-fade-in">
             
-            <div class="text-center space-y-2">
-                <div class="inline-flex h-12 w-12 rounded-2xl bg-[#C3D809]/10 text-[#C3D809] border border-[#C3D809]/25 items-center justify-center mb-2">
-                    <i class="fas fa-lock text-xl"></i>
+            <!-- Processing SSO State (visible when token is being processed) -->
+            <div id="processing-sso" class="hidden text-center space-y-4">
+                <div class="inline-flex h-16 w-16 rounded-2xl bg-[#C3D809]/10 text-[#C3D809] border border-[#C3D809]/25 items-center justify-center mb-2 mx-auto">
+                    <i class="fas fa-spinner fa-pulse text-2xl"></i>
                 </div>
-                <h2 class="text-2xl font-extrabold font-display">SSO Login</h2>
-                <p class="text-xs text-slate-400">Use your padikkunnundo.app account to continue.</p>
+                <h2 class="text-2xl font-extrabold font-display">Processing SSO Login...</h2>
+                <p class="text-xs text-slate-400">Verifying your identity from padikkunnundo.app. You will be redirected automatically.</p>
+                <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-[#C3D809] h-full rounded-full animate-pulse" style="width: 60%"></div>
+                </div>
             </div>
 
-            <!-- Error Notification Panel -->
-            <div id="error-box" class="hidden p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-400 flex items-center gap-2">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span id="error-message"></span>
-            </div>
-
-            <div class="space-y-4">
-                <div class="rounded-xl border border-[#C3D809]/20 bg-[#C3D809]/10 p-4 text-sm text-slate-300">
-                    <p class="font-semibold text-[#C3D809] mb-2">This site uses single sign-on only.</p>
-                    <p>Sign in through your padikkunnundo.app account to access the MCQ portal.</p>
+            <!-- Default SSO Login Card (hidden when processing SSO) -->
+            <div id="sso-login-card" class="space-y-6">
+                <div class="text-center space-y-2">
+                    <div class="inline-flex h-12 w-12 rounded-2xl bg-[#C3D809]/10 text-[#C3D809] border border-[#C3D809]/25 items-center justify-center mb-2">
+                        <i class="fas fa-lock text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-extrabold font-display">SSO Login</h2>
+                    <p class="text-xs text-slate-400">Use your padikkunnundo.app account to continue.</p>
                 </div>
 
-                <a href="https://padikkunnundo.app" id="btn-submit" class="w-full py-3 rounded-xl font-bold bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111111] shadow-lg shadow-[#C3D809]/20 font-bold transform hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2 cursor-pointer">
-                    <span>Go to padikkunnundo.app</span>
-                    <i class="fas fa-arrow-right text-sm"></i>
-                </a>
+                <!-- Error Notification Panel -->
+                <div id="error-box" class="hidden p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-400 flex items-center gap-2">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="error-message"></span>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="rounded-xl border border-[#C3D809]/20 bg-[#C3D809]/10 p-4 text-sm text-slate-300">
+                        <p class="font-semibold text-[#C3D809] mb-2">This site uses single sign-on only.</p>
+                        <p>Sign in through your padikkunnundo.app account to access the MCQ portal.</p>
+                    </div>
+
+                    <a href="https://padikkunnundo.app" id="btn-submit" class="w-full py-3 rounded-xl font-bold bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111111] shadow-lg shadow-[#C3D809]/20 font-bold transform hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2 cursor-pointer">
+                        <span>Go to padikkunnundo.app</span>
+                        <i class="fas fa-arrow-right text-sm"></i>
+                    </a>
+                </div>
             </div>
 
         </div>
@@ -101,6 +116,30 @@
 
     <script src="app.js"></script>
     <script>
+        // ── SSO Token Auto-Detection ──
+        // When padikkunnundo.app redirects the user back with a JWT token,
+        // automatically forward it to the backend SSO endpoint for verification.
+        (function handleSSORedirect() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+
+            if (token) {
+                // Show processing state
+                const processingEl = document.getElementById('processing-sso');
+                const loginCard = document.getElementById('sso-login-card');
+                if (processingEl) processingEl.classList.remove('hidden');
+                if (loginCard) loginCard.classList.add('hidden');
+
+                // Update page title / URL to remove the token from address bar
+                history.replaceState(null, '', window.location.pathname);
+
+                // Forward the token to the backend SSO endpoint.
+                // The backend will verify it, create/update the user,
+                // set session cookies, and redirect to dashboard.
+                window.location.href = '/sso/login?token=' + encodeURIComponent(token);
+            }
+        })();
+
         function showErrorFromQuery() {
             const params = new URLSearchParams(window.location.search);
             const error = params.get('error');
