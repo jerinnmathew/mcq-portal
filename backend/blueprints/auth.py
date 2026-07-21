@@ -40,89 +40,19 @@ def rate_limit(limit=5, period=60):
 @auth_bp.route('/register', methods=['POST'])
 @rate_limit(limit=10, period=60)
 def register():
-    """Registers a new user, hashes password, and creates standard stats."""
-    data = request.get_json() or {}
-    
-    username = data.get('username', '').strip()
-    password = data.get('password', '').strip()
-
-    # Input sanitization and validations
-    if not username or not password:
-        return jsonify({"msg": "Username and password are required"}), 400
-
-    if len(username) < 3 or len(username) > 30:
-        return jsonify({"msg": "Username must be between 3 and 30 characters"}), 400
-
-    if len(password) < 6:
-        return jsonify({"msg": "Password must be at least 6 characters long"}), 400
-
-    # SQL Injection protection & duplicate check
-    existing_user = User.query.filter_by(username=username).first()
-    if existing_user:
-        return jsonify({"msg": "Username already exists"}), 409
-
-    try:
-        # Create User
-        new_user = User(username=username)
-        new_user.set_password(password)
-        
-        db.session.add(new_user)
-        db.session.flush() # Populate new_user.id for stats foreign key
-
-        # Create user Stats
-        user_stats = Stats(
-            user_id=new_user.id,
-            highest_score=0,
-            average_score=0.0,
-            total_attempts=0,
-            win_ratio=0.0,
-            current_streak=0
-        )
-        db.session.add(user_stats)
-        db.session.commit()
-
-        return jsonify({"msg": "Registration successful. You can now login.", "user": new_user.to_dict()}), 201
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
+    """Local registration is disabled; only SSO from padikkunnundo.app is supported."""
+    return jsonify({
+        "msg": "Registration is disabled. Please sign in with padikkunnundo.app."
+    }), 403
 
 
 @auth_bp.route('/login', methods=['POST'])
 @rate_limit(limit=5, period=60)
 def login():
-    """Logs in user and sets secure, HttpOnly JWT cookies."""
-    data = request.get_json() or {}
-    
-    username = data.get('username', '').strip()
-    password = data.get('password', '').strip()
-
-    if not username or not password:
-        return jsonify({"msg": "Username and password are required"}), 400
-
-    user = User.query.filter_by(username=username).first()
-
-    if user and user.is_sso_user:
-        return jsonify({
-            "msg": "This account uses SSO. Please log in via padikkunnundo.app."
-        }), 403
-
-    if not user or not user.check_password(password):
-        current_app.logger.warning(f"SECURITY ALERT: Failed login attempt for username '{username}' from IP {request.remote_addr}")
-        return jsonify({"msg": "Invalid username or password"}), 401
-    
-    # Generate token
-    # Flask-JWT-Extended stores the identity as a string
-    access_token = create_access_token(identity=str(user.id))
-
-    # Build response and attach HttpOnly access cookies
-    response = jsonify({
-        "msg": "Login successful",
-        "user": user.to_dict()
-    })
-    set_access_cookies(response, access_token)
-
-    return response, 200
+    """Local password login is disabled; only SSO from padikkunnundo.app is supported."""
+    return jsonify({
+        "msg": "This site uses SSO only. Please sign in through padikkunnundo.app."
+    }), 403
 
 
 @auth_bp.route('/profile', methods=['GET'])
