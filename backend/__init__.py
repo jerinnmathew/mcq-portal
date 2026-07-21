@@ -2,6 +2,8 @@ import os
 from flask import Flask, send_from_directory, redirect, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity
+from sqlalchemy import text
+
 from backend.config import Config
 from backend.models import db, MCQ, User, Stats
 
@@ -74,11 +76,60 @@ def create_app(config_class=Config):
 
     # Initialize database and seed sample data
     with app.app_context():
+        run_migrations()
         db.create_all()
         seed_subjects()
         seed_admin()
 
     return app
+
+def run_migrations():
+    """Add missing columns to existing tables without dropping data.
+    This handles schema updates for deployments where db.create_all() won't alter existing tables."""
+    from sqlalchemy import inspect
+
+    inspector = inspect(db.engine)
+    
+    # Get existing columns in the users table
+    existing_columns = {col['name'] for col in inspector.get_columns('users')}
+    
+    # Define migrations: (column_name, sql_type, nullable, default)
+    migrations = [
+        ('email', 'VARCHAR(255)', True, None),
+        ('name', 'VARCHAR(255)', True, None),
+        ('college', 'VARCHAR(255)', True, None),
+        ('sso_id', 'INTEGER', True, None),
+        ('is_sso_user', 'BOOLEAN', False, 'false'),
+        ('last_sso_login', 'TIMESTAMP', True, None),
+    ]
+
+    for col_name, col_type, nullable, default in migrations:
+        if col_name not in existing_columns:
+            try:
+                null_clause = "" if nullable else "NOT NULL"
+                default_clause = f"DEFAULT {default}" if default is not None else ""
+                sql = f"ALTER TABLE users ADD COLUMN {col_name} {col_type} {null_clause} {default_clause}"
+                db.session.execute(text(sql.strip()))
+                db.session.commit()
+                print(f"Migration: Added column '{col_name}' to users table.")
+            except Exception as e:
+                db.session.rollback()
+                # Column may have been added by another process, ignore
+                print(f"Migration note: Could not add column '{col_name}': {str(e)}")
+    
+    # Also check the stats table for new columns if needed
+    try:
+        stats_columns = {col['name'] for col in inspector.get_columns('stats')}
+        # Stats table currently matches the model, but let's ensure user_id exists
+        if 'user_id' not in stats_columns:
+            db.session.execute(text(
+                "ALTER TABLE stats ADD COLUMN user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE"
+            ))
+            db.session.commit()
+            print("Migration: Added column 'user_id' to stats table.")
+    except Exception:
+        pass  # stats table might not exist yet, which is fine
+
 
 def seed_subjects():
     """Seeds the subject table ONLY if the table is completely empty (first run)."""
