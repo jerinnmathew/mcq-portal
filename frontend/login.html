@@ -101,7 +101,25 @@
 
     <script src="app.js"></script>
     <script>
+        function showErrorFromQuery() {
+            const params = new URLSearchParams(window.location.search);
+            const error = params.get('error');
+            if (!error) return;
+
+            const errorBox = document.getElementById('error-box');
+            const messageEl = document.getElementById('error-message');
+            const message = error === 'missing_token' || error === 'invalid_token'
+                ? 'SSO session expired. Please go back and try again.'
+                : decodeURIComponent(error);
+
+            if (errorBox && messageEl) {
+                messageEl.textContent = message;
+                errorBox.classList.remove('hidden');
+            }
+        }
+
         redirectIfLoggedIn();
+        showErrorFromQuery();
     </script>
 </body>
 </html>

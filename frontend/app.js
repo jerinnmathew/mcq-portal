@@ -119,9 +119,8 @@ async function fetchAPI(endpoint, options = {}) {
 
 // --- Page Guards ---
 function protectPage() {
-    if (!Auth.isAuthenticated()) {
-        window.location.href = 'login.html';
-    }
+    // Do not rely solely on localStorage for auth state.
+    // The backend validates the HttpOnly session_token cookie on each request.
 }
 
 function redirectIfLoggedIn() {

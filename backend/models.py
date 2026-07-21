@@ -57,6 +57,8 @@ class User(db.Model):
 
     # SSO fields
     email = db.Column(db.String(255), unique=True, nullable=True)
+    name = db.Column(db.String(255), nullable=True)
+    college = db.Column(db.String(255), nullable=True)
     sso_id = db.Column(db.Integer, unique=True, nullable=True, index=True)
     is_sso_user = db.Column(db.Boolean, nullable=False, default=False)
     last_sso_login = db.Column(db.DateTime, nullable=True)
@@ -81,6 +83,8 @@ class User(db.Model):
             "id": self.id,
             "username": self.username,
             "email": self.email,
+            "name": self.name,
+            "college": self.college,
             "sso_id": self.sso_id,
             "is_sso_user": self.is_sso_user,
             "streak": self.streak,

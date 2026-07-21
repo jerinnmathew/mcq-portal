@@ -59,6 +59,14 @@ def create_app(config_class=Config):
         except Exception:
             return redirect('/login.html')
 
+    @app.route('/login')
+    def serve_login():
+        return send_from_directory(app.static_folder, 'login.html')
+
+    @app.route('/dashboard')
+    def serve_dashboard():
+        return send_from_directory(app.static_folder, 'dashboard.html')
+
     # Serve index.html at root
     @app.route('/')
     def serve_index():

@@ -1,6 +1,7 @@
-from flask import Blueprint, request, jsonify, current_app
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies
 from backend.models import db, User, Stats
+from backend.utils.helpers import login_required
 import time
 from functools import wraps
 
@@ -56,12 +57,9 @@ def login():
 
 
 @auth_bp.route('/profile', methods=['GET'])
-@jwt_required()
-def get_profile():
+@login_required
+def get_profile(user):
     """Gets details of the logged in user."""
-    user_id = get_jwt_identity()
-    user = User.query.get(int(user_id))
-    
     if not user:
         return jsonify({"msg": "User not found"}), 404
         
@@ -76,4 +74,5 @@ def logout():
     """Logs out user by clearing the secure HttpOnly JWT cookies."""
     response = jsonify({"msg": "Logged out successfully"})
     unset_jwt_cookies(response)
+    response.delete_cookie("session_token")
     return response, 200

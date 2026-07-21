@@ -1,4 +1,49 @@
-from datetime import datetime, timedelta
+from datetime import datetime
+from functools import wraps
+
+import jwt as pyjwt
+from flask import current_app, request, jsonify
+from backend.models import User
+
+
+def get_current_user():
+    """Return the currently authenticated user from our session_token cookie."""
+    token = request.cookies.get("session_token")
+    if not token:
+        return None
+
+    secret = current_app.config.get("SECRET_KEY")
+    if not secret:
+        current_app.logger.error("SECRET_KEY is not configured for session JWT decoding")
+        return None
+
+    try:
+        payload = pyjwt.decode(token, secret, algorithms=["HS256"])
+    except pyjwt.ExpiredSignatureError:
+        return None
+    except pyjwt.PyJWTError:
+        return None
+
+    user_id = payload.get("sub")
+    if not user_id:
+        return None
+
+    try:
+        return User.query.get(int(user_id))
+    except (TypeError, ValueError):
+        return None
+
+
+def login_required(fn):
+    """Decorator that requires a valid session_token cookie."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        user = get_current_user()
+        if user is None:
+            return jsonify({"msg": "Unauthorized"}), 401
+        return fn(user, *args, **kwargs)
+    return wrapper
+
 
 def calculate_streak_and_xp(user, score, total_questions, last_attempt):
     """
