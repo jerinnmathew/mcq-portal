@@ -200,6 +200,24 @@
     <!-- App JS module -->
     <script src="app.js"></script>
     <script>
+        // ── SSO Token Auto-Detection ──
+        // When padikkunnundo.app redirects the user back to our portal with a JWT token,
+        // automatically forward it to the backend SSO endpoint for verification & login.
+        (function handleSSORedirect() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+
+            if (token) {
+                // Clean the URL to remove the token from the address bar
+                history.replaceState(null, '', window.location.pathname);
+
+                // Forward the token to the backend SSO endpoint.
+                // The backend will verify it, create/update the user,
+                // set session cookies, and redirect to dashboard.
+                window.location.href = '/sso/login?token=' + encodeURIComponent(token) + '&next=/';
+            }
+        })();
+
         document.addEventListener('DOMContentLoaded', () => {
             // Animate stats values
             setTimeout(() => {
