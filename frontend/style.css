@@ -1,43 +1,42 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.cdnfonts.com/css/proxima-nova-2');
 
 :root {
-    /* Primary Colors - University Blue & Purple */
-    --primary-blue: #2563EB;
-    --primary-purple: #7C3AED;
-    --primary-dark: #1E40AF;
-    
-    /* Accent Colors */
-    --accent-cyan: #06B6D4;
-    --accent-green: #10B981;
-    --accent-orange: #F59E0B;
-    --accent-red: #EF4444;
-    
-    /* Neutral Colors */
-    --gray-50: #F9FAFB;
-    --gray-100: #F3F4F6;
-    --gray-200: #E5E7EB;
-    --gray-300: #D1D5DB;
-    --gray-400: #9CA3AF;
-    --gray-500: #6B7280;
-    --gray-600: #4B5563;
-    --gray-700: #374151;
-    --gray-800: #1F2937;
-    --gray-900: #111827;
-    
-    /* Semantic Colors */
-    --bg-primary: #FFFFFF;
-    --bg-secondary: #F9FAFB;
-    --text-primary: #111827;
-    --text-secondary: #6B7280;
-    --border-color: #E5E7EB;
-    
+    /* ─── Power + Slides Palette ─── */
+    --lime:          #C3D809;
+    --lime-dark:     #a8bb07;
+    --lime-light:    #d4eb1a;
+    --dark:          #222022;
+    --dark-2:        #2d2b2d;
+    --dark-3:        #383638;
+    --dark-4:        #4a484a;
+
+    /* Semantic aliases */
+    --primary:       var(--lime);
+    --primary-dark:  var(--lime-dark);
+    --primary-light: var(--lime-light);
+
+    --bg-base:       var(--dark);
+    --bg-surface:    var(--dark-2);
+    --bg-elevated:   var(--dark-3);
+    --bg-muted:      var(--dark-4);
+
+    --text-primary:  #f0f0f0;
+    --text-secondary:#a8a8a8;
+    --text-muted:    #6b6b6b;
+    --text-on-lime:  #111111;
+
+    --border-subtle: rgba(195, 216, 9, 0.12);
+    --border-mid:    rgba(195, 216, 9, 0.25);
+    --border-strong: rgba(195, 216, 9, 0.5);
+
     /* Shadows */
-    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.4);
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.5);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.6);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.7);
+    --shadow-lime: 0 0 20px rgba(195,216,9,0.25);
+    --shadow-lime-lg: 0 0 40px rgba(195,216,9,0.35);
+
     /* Spacing */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
@@ -45,18 +44,24 @@
     --spacing-lg: 1.5rem;
     --spacing-xl: 2rem;
     --spacing-2xl: 3rem;
-    
+
     /* Border Radius */
     --radius-sm: 0.375rem;
     --radius-md: 0.5rem;
     --radius-lg: 0.75rem;
     --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
 }
 
+/* ─── Reset & Base ─── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
 body {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Proxima Nova', 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--bg-base);
     color: var(--text-primary);
-    background-color: var(--bg-secondary);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -65,100 +70,192 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', sans-serif;
-    font-weight: 700;
-    line-height: 1.2;
+    font-family: 'Proxima Nova', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: 0.02em;
 }
 
 .font-display {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Proxima Nova', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.03em;
 }
 
-/* Navbar Custom Theme (Matches PYQ Portal color & text styling) */
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--dark-2); }
+::-webkit-scrollbar-thumb { background: var(--dark-4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--lime-dark); }
+
+/* ─── Glass / Card Components ─── */
+.glass-panel {
+    background: rgba(34,32,34,0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+}
+
+.glass-card {
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    box-shadow: var(--shadow-md) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+    border-color: var(--border-mid) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.glass-input {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: var(--text-primary) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-input:focus {
+    outline: none !important;
+    border-color: var(--lime) !important;
+    box-shadow: 0 0 0 3px rgba(195,216,9,0.15) !important;
+}
+
+.glass-input::placeholder { color: var(--text-muted) !important; }
+
+/* ─── Glow active state ─── */
+.glow-active {
+    box-shadow: 0 0 0 1px var(--border-mid), var(--shadow-lime) !important;
+}
+
+/* ─── Background mesh / texture ─── */
+.bg-mesh {
+    background-color: var(--bg-base) !important;
+    background-image:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(195,216,9,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(195,216,9,0.05) 0%, transparent 60%) !important;
+}
+
+/* ─── Navbar ─── */
 #navbar-container {
-    background: linear-gradient(to right, var(--primary-blue), var(--primary-purple)) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+    background: var(--dark-2) !important;
+    border-bottom: 1px solid var(--border-subtle) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
 }
 
 #navbar-container nav a {
-    color: rgba(255, 255, 255, 0.8) !important;
-    transition: all 0.2s ease-in-out;
+    color: var(--text-secondary) !important;
+    transition: color 0.2s ease, background 0.2s ease;
 }
 
 #navbar-container nav a:hover {
-    color: #ffffff !important;
-    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--lime) !important;
+    background-color: rgba(195,216,9,0.08) !important;
 }
 
-/* Active Nav Pill State */
+/* Active Nav Pill */
 #navbar-container nav a.active-nav-link {
-    background-color: rgba(255, 255, 255, 0.18) !important;
-    color: #ffffff !important;
+    background-color: rgba(195,216,9,0.12) !important;
+    color: var(--lime) !important;
 }
 
-/* Navigation buttons in Navbar */
+/* Nav Buttons */
 #navbar-container .nav-btn {
-    color: #ffffff !important;
-    background-color: transparent !important;
-    background: none !important;
-    font-weight: 600 !important;
+    color: var(--text-secondary) !important;
+    background: transparent !important;
+    font-family: 'Proxima Nova', 'Helvetica Neue', Arial, sans-serif !important;
+    font-weight: 700 !important;
     font-size: 0.875rem !important;
     padding: 0.4rem 1rem !important;
     border-radius: 0.5rem !important;
-    transition: all 0.2s ease-in-out !important;
     border: 1px solid transparent !important;
+    transition: all 0.2s ease !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
 }
 
 #navbar-container .nav-btn:hover {
-    background-color: #ffffff !important;
-    color: var(--primary-blue) !important;
-    box-shadow: var(--shadow-sm) !important;
+    color: var(--lime) !important;
+    border-color: var(--border-mid) !important;
+    background-color: rgba(195,216,9,0.08) !important;
 }
 
-/* Active Nav Button State */
 #navbar-container .nav-btn.active-nav-btn {
-    color: #ffffff !important;
-    background-color: transparent !important;
-    background: none !important;
-    font-weight: 700 !important;
-}
-
-#navbar-container .nav-btn.active-nav-btn:not([href="index.html"]) {
-    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    color: var(--lime) !important;
+    border-color: var(--border-strong) !important;
+    background-color: rgba(195,216,9,0.12) !important;
 }
 
 #navbar-container .nav-btn.active-nav-btn:hover {
-    background-color: #ffffff !important;
-    color: var(--primary-blue) !important;
-    box-shadow: var(--shadow-sm) !important;
-    border-color: transparent !important;
+    background-color: rgba(195,216,9,0.18) !important;
 }
 
-/* Text Gradient styling using branding colors */
+/* Navbar user text */
+#navbar-container .text-gray-400,
+#navbar-container .text-slate-400 {
+    color: var(--text-muted) !important;
+}
+
+#navbar-container .text-blue-400,
+#navbar-container .text-white {
+    color: var(--text-primary) !important;
+}
+
+/* ─── Lime accent text gradient ─── */
 .text-gradient-shine {
-    background: linear-gradient(to right, var(--primary-blue), var(--primary-purple), var(--primary-blue));
-    background-size: 200% auto;
+    background: linear-gradient(90deg, var(--lime-dark), var(--lime), var(--lime-light), var(--lime));
+    background-size: 300% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
     animation: textShine 4s linear infinite;
     display: inline-block;
 }
 
 @keyframes textShine {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0%   { background-position: 0% center; }
+    100% { background-position: 300% center; }
 }
 
-/* Battle Arena mockup card custom design (Light Mode Panel) */
+/* ─── Primary Buttons ─── */
+.btn-primary,
+a.btn-primary {
+    background: var(--lime) !important;
+    color: var(--text-on-lime) !important;
+    font-family: 'Proxima Nova', 'Helvetica Neue', Arial, sans-serif !important;
+    font-weight: 800 !important;
+    border: none !important;
+    box-shadow: 0 4px 16px rgba(195,216,9,0.3) !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover,
+a.btn-primary:hover {
+    background: var(--lime-light) !important;
+    box-shadow: 0 6px 24px rgba(195,216,9,0.45) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ─── Gradient Buttons (replaces blue/indigo gradients) ─── */
+.bg-gradient-to-r.from-blue-600,
+.bg-gradient-to-r.from-primary-blue,
+[class*="from-blue-"][class*="to-indigo-"],
+[class*="from-primary-blue"] {
+    background: var(--lime) !important;
+    color: var(--text-on-lime) !important;
+    box-shadow: 0 4px 16px rgba(195,216,9,0.3) !important;
+}
+
+/* ─── Profile board (logged-in card) ─── */
 #profile-logged-in {
-    background: var(--bg-primary) !important;
-    border: 1px solid var(--border-color) !important;
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
     color: var(--text-primary) !important;
     box-shadow: var(--shadow-lg) !important;
 }
@@ -173,75 +270,76 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-secondary) !important;
 }
 
-/* Icon box styling inside the mockup card */
+/* Profile card stats panel */
 #battle-arena-card .h-16.w-16 {
-    background: rgba(37, 99, 235, 0.08) !important;
-    border-color: rgba(37, 99, 235, 0.15) !important;
+    background: rgba(195,216,9,0.08) !important;
+    border-color: rgba(195,216,9,0.15) !important;
 }
 
-#battle-arena-card .h-16.w-16 i {
-    color: var(--primary-blue) !important;
-}
+#battle-arena-card .h-16.w-16 i { color: var(--lime) !important; }
 
 #battle-arena-card a[href="login.html"],
 #battle-arena-card a[href="register.html"] {
-    background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple)) !important;
+    background: var(--lime) !important;
     border: none !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
+    color: var(--text-on-lime) !important;
+    font-family: 'Proxima Nova', 'Helvetica Neue', Arial, sans-serif !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 16px rgba(195,216,9,0.3) !important;
     transition: all 0.2s ease !important;
 }
 
 #battle-arena-card a[href="login.html"]:hover,
 #battle-arena-card a[href="register.html"]:hover {
-    background: linear-gradient(135deg, #1d4ed8, #6d28d9) !important;
-    color: #ffffff !important;
+    background: var(--lime-light) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3) !important;
+    box-shadow: 0 6px 24px rgba(195,216,9,0.45) !important;
 }
 
-/* Progress bar inside profile board when logged in */
+/* Progress bar */
 #battle-arena-card #student-progress-bar {
-    background: linear-gradient(to right, var(--primary-blue), var(--primary-purple)) !important;
+    background: var(--lime) !important;
 }
 
 #battle-arena-card .w-full.bg-slate-950 {
-    background: var(--gray-200) !important;
+    background: var(--dark-4) !important;
 }
 
-/* Accuracy / score highlight values */
+/* Score / accuracy highlights */
 #battle-arena-card #student-score {
-    color: var(--primary-blue) !important;
+    color: var(--lime) !important;
     font-weight: 800 !important;
 }
 
 #battle-arena-card #student-accuracy {
-    color: var(--accent-green) !important;
+    color: var(--lime) !important;
     font-weight: 800 !important;
 }
 
 #battle-arena-card #student-xp-progress {
-    color: var(--primary-blue) !important;
+    color: var(--lime) !important;
     font-weight: 800 !important;
 }
 
-/* Gradient button for View Standings (Matches Start Your Battle style) */
+/* ─── View Standings Button ─── */
 #btn-view-standings {
-    background: linear-gradient(to right, var(--primary-blue), var(--primary-purple)) !important;
-    border: none !important;
-    color: #ffffff !important;
-    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2), 0 4px 6px -2px rgba(124, 58, 237, 0.2) !important;
-    transition: all 0.25s ease-in-out !important;
+    background: transparent !important;
+    border: 2px solid var(--lime) !important;
+    color: var(--lime) !important;
+    font-family: 'Proxima Nova', 'Helvetica Neue', Arial, sans-serif !important;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
 }
 
 #btn-view-standings:hover {
-    background: linear-gradient(to right, var(--primary-dark), var(--primary-purple)) !important;
-    color: #ffffff !important;
+    background: var(--lime) !important;
+    color: var(--text-on-lime) !important;
+    box-shadow: 0 6px 24px rgba(195,216,9,0.4) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 10px 20px -3px rgba(37, 99, 235, 0.3), 0 4px 10px -2px rgba(124, 58, 237, 0.3) !important;
 }
 
-/* Enforce visibility/contrast of slate and gray utilities in Light Mode */
+/* ─── Override Tailwind slate/gray utilities to match dark theme ─── */
 .text-slate-100,
 .text-slate-200,
 .text-slate-300,
@@ -257,25 +355,65 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-secondary) !important;
 }
 
-.border-white\/5,
-.border-white\/10 {
-    border-color: var(--border-color) !important;
+.text-blue-400,
+.text-blue-300,
+.text-indigo-400 {
+    color: var(--lime) !important;
 }
 
-/* Ensure background white transparencies render nicely on light canvas */
+.text-emerald-400,
+.text-emerald-500,
+.text-green-400 {
+    color: var(--lime) !important;
+}
+
 .bg-white\/5 {
-    background-color: var(--gray-100) !important;
+    background-color: rgba(195,216,9,0.05) !important;
 }
 
 .bg-white\/10 {
-    background-color: var(--gray-200) !important;
+    background-color: rgba(195,216,9,0.08) !important;
 }
 
+.border-white\/5,
+.border-white\/10 {
+    border-color: var(--border-subtle) !important;
+}
 
-/* Footer styling with gradient background and white text */
+/* Blue pill / badge (landing page "Now Active") */
+.bg-blue-500\/10 { background-color: rgba(195,216,9,0.1) !important; }
+.border-blue-500\/20 { border-color: rgba(195,216,9,0.25) !important; }
+.text-blue-400 { color: var(--lime) !important; }
+.bg-blue-400 { background-color: var(--lime) !important; }
+
+/* Indigo overrides */
+.from-blue-600 { --tw-gradient-from: var(--lime) !important; }
+.to-indigo-600 { --tw-gradient-to: var(--lime-dark) !important; }
+.from-blue-500 { --tw-gradient-from: var(--lime-light) !important; }
+.to-indigo-500 { --tw-gradient-to: var(--lime) !important; }
+.shadow-blue-500\/20 { --tw-shadow-color: rgba(195,216,9,0.2) !important; }
+.shadow-blue-500\/30 { --tw-shadow-color: rgba(195,216,9,0.3) !important; }
+
+/* Progress bars with blue */
+.from-blue-500.to-indigo-500,
+.bg-gradient-to-r.from-blue-500 {
+    background: var(--lime) !important;
+}
+
+/* Ambient glow orbs */
+.bg-blue-500\/10 { background-color: rgba(195,216,9,0.06) !important; }
+.bg-indigo-500\/10 { background-color: rgba(195,216,9,0.04) !important; }
+
+/* ─── Guest card (logged-out) ─── */
+#profile-logged-out {
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+}
+
+/* ─── Footer ─── */
 footer {
-    background: linear-gradient(to right, var(--primary-blue), var(--primary-purple)) !important;
-    border-top: none !important;
+    background: var(--dark-2) !important;
+    border-top: 1px solid var(--border-subtle) !important;
     padding-top: 0.75rem !important;
     padding-bottom: 0.75rem !important;
 }
@@ -285,42 +423,99 @@ footer a,
 footer p,
 footer .text-gray-500,
 footer .text-slate-500 {
-    color: #ffffff !important;
-    font-weight: 600 !important;
+    color: var(--text-muted) !important;
+    font-weight: 500 !important;
     background: none !important;
     -webkit-background-clip: initial !important;
     -webkit-text-fill-color: initial !important;
     display: inline-block !important;
 }
 
-/* Navbar text readability enhancements */
-#navbar-container .text-gray-400,
-#navbar-container .text-slate-400 {
-    color: rgba(255, 255, 255, 0.7) !important;
+/* ─── Orange streak widget override ─── */
+.bg-orange-500\/10 { background-color: rgba(195,216,9,0.1) !important; }
+.border-orange-500\/20 { border-color: rgba(195,216,9,0.2) !important; }
+.text-orange-400,
+.text-orange-500 { color: var(--lime) !important; }
+
+/* ─── Red error states (keep readable) ─── */
+.bg-red-500\/10 { background-color: rgba(239,68,68,0.08) !important; }
+.border-red-500\/20 { border-color: rgba(239,68,68,0.2) !important; }
+.text-red-400,
+.text-red-500 { color: #f87171 !important; }
+
+/* ─── Emerald / green check icons ─── */
+.text-emerald-500 { color: var(--lime) !important; }
+
+/* ─── Badge classes ─── */
+.badge-platinum { background: linear-gradient(135deg, #6b7280, #9ca3af) !important; }
+.badge-gold     { background: linear-gradient(135deg, var(--lime-dark), var(--lime)) !important; }
+.badge-silver   { background: linear-gradient(135deg, #64748b, #94a3b8) !important; }
+.badge-bronze   { background: linear-gradient(135deg, #78350f, #d97706) !important; }
+
+/* ─── Animations ─── */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-#navbar-container .text-blue-400 {
-    color: #ffffff !important;
-    font-weight: 700 !important;
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
 }
 
-/* Navbar mobile scaling and optimization */
-@media (max-width: 640px) {
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
+}
+
+.animate-pulse { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+
+/* ─── Lime glow utility ─── */
+.lime-glow { box-shadow: var(--shadow-lime); }
+.lime-glow-lg { box-shadow: var(--shadow-lime-lg); }
+
+/* ─── Mobile Responsive Navbar ─── */
+@media (max-width: 767px) {
     #navbar-container .nav-btn {
-        padding: 0.35rem 0.6rem !important;
-        font-size: 0.75rem !important;
+        padding: 0.4rem 0.75rem !important;
+        font-size: 0.8rem !important;
     }
-    #navbar-container button[onclick="Auth.logout()"] {
-        padding: 0.25rem 0.5rem !important;
-        font-size: 0.7rem !important;
+    /* Mobile dropdown nav panel links */
+    #mobile-nav-panel .nav-btn {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.85rem !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        border: none !important;
+        border-radius: 0.5rem !important;
+        background: transparent !important;
     }
-    #navbar-container .gap-3 {
-        gap: 0.5rem !important;
+    #mobile-nav-panel .nav-btn:hover {
+        background: rgba(195,216,9,0.08) !important;
+        border-color: transparent !important;
     }
-    #navbar-container .h-8.w-8 {
-        height: 1.75rem !important;
-        width: 1.75rem !important;
-        font-size: 0.7rem !important;
+    #mobile-nav-panel .nav-btn.active-nav-btn {
+        background: rgba(195,216,9,0.12) !important;
+        border-color: var(--border-strong) !important;
     }
 }
 
+/* ─── Quiz Option Cards ─── */
+.quiz-option {
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.quiz-option:hover {
+    border-color: var(--border-mid) !important;
+    background: rgba(195, 216, 9, 0.04) !important;
+    transform: translateX(4px) !important;
+}
+
+.quiz-option.selected {
+    background: rgba(195, 216, 9, 0.08) !important;
+    border-color: var(--lime) !important;
+    box-shadow: var(--shadow-lime) !important;
+}

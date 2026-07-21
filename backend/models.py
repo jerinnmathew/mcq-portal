@@ -4,17 +4,62 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
+# Active list of subjects used for seeding and subject-specific question grouping.
+# Only the name and semester are required for the app-level subject list.
+SUBJECTS = [
+    ("Discrete Mathematics", 1),
+    ("Digital Fundamentals", 1),
+    ("Fundamentals of Programming Using C++", 1),
+    ("English for Science", 1),
+    ("Cyber Laws and Security", 1),
+    ("Software Lab in C++", 1),
+    ("Spanish 1", 1),
+    ("French 1", 1),
+    ("Indian Constitution: Legal and Ethical Perspectives", 2),
+    ("Web Technology", 2),
+    ("Operating Systems", 2),
+    ("Data Structures", 2),
+    ("Mathematics Foundations to Computer Science ", 2),
+    ("AEC — English", 2),
+    ("Spanish 2", 2),
+    ("French 2", 2),
+    ("Python Programming", 3),
+    ("Database Management Systems", 3),
+    ("Design and Analysis of Algorithms", 3),
+    ("Software Engineering", 3),
+    ("Quantitative Techniques", 3),
+    ("Feature Engineering", 3),
+    ("Introduction to Cyber Security", 3),
+    ("Interactive Web Application Development Using PHP and MySQL ", 3),
+    ("Basics of Data Analytics Using Spreadsheet ", 3),
+    ("Object Oriented Programming Using Java", 4),
+    ("Design Thinking and Innovation", 4),
+    ("Entrepreneurship and Startup Ecosystem", 4),
+    ("Probability Distributions and Statistical Inference", 4),
+    ("Artificial Intelligence", 4),
+    ("Network Simulation", 4),
+    ("Intro to ML", 4),
+    ("Data Visualization ", 4),
+    ("Web Application Development Using Node.js and Express.js ", 4)
+]
+
 class User(db.Model):
     """User representation representing registered students."""
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
-    password_hash = db.Column(db.String(255), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=True)
     streak = db.Column(db.Integer, default=0, nullable=False)
     xp_points = db.Column(db.Integer, default=0, nullable=False)
     badge = db.Column(db.String(50), default='Bronze', nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    # SSO fields
+    email = db.Column(db.String(255), unique=True, nullable=True)
+    sso_id = db.Column(db.Integer, unique=True, nullable=True, index=True)
+    is_sso_user = db.Column(db.Boolean, nullable=False, default=False)
+    last_sso_login = db.Column(db.DateTime, nullable=True)
 
     # Relationships
     attempts = db.relationship('Attempt', backref='user', lazy=True, cascade="all, delete-orphan")
@@ -26,6 +71,8 @@ class User(db.Model):
 
     def check_password(self, password):
         """Checks if the provided password matches the hash."""
+        if not self.password_hash:
+            return False
         return check_password_hash(self.password_hash, password)
 
     def to_dict(self):
@@ -33,10 +80,14 @@ class User(db.Model):
         return {
             "id": self.id,
             "username": self.username,
+            "email": self.email,
+            "sso_id": self.sso_id,
+            "is_sso_user": self.is_sso_user,
             "streak": self.streak,
             "xp_points": self.xp_points,
             "badge": self.badge,
-            "created_at": self.created_at.isoformat() if self.created_at else None
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "last_sso_login": self.last_sso_login.isoformat() if self.last_sso_login else None
         }
 
 
@@ -51,8 +102,10 @@ class MCQ(db.Model):
     option_c = db.Column(db.Text, nullable=False)
     option_d = db.Column(db.Text, nullable=False)
     correct_answer = db.Column(db.String(1), nullable=False) # 'A', 'B', 'C', or 'D'
-    category = db.Column(db.String(100), default='General', nullable=False)
-    difficulty = db.Column(db.String(50), default='Medium', nullable=False)
+    category = db.Column(db.String(150), default='General', nullable=False)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id', ondelete='SET NULL'), nullable=True, index=True)
+
+    subject = db.relationship('Subject', back_populates='questions')
 
     def to_dict(self, include_correct=False):
         """Serializes MCQ fields. Excludes correct answer for students during quiz."""
@@ -64,11 +117,32 @@ class MCQ(db.Model):
             "option_c": self.option_c,
             "option_d": self.option_d,
             "category": self.category,
-            "difficulty": self.difficulty
+            "subject_id": self.subject_id,
+            "subject_name": self.subject.name if self.subject else None,
+            "semester": self.subject.semester if self.subject else None
         }
         if include_correct:
             data["correct_answer"] = self.correct_answer
         return data
+
+
+class Subject(db.Model):
+    """Represents an academic subject and semester grouping."""
+    __tablename__ = 'subjects'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), unique=True, nullable=False, index=True)
+    semester = db.Column(db.Integer, nullable=False)
+
+    questions = db.relationship('MCQ', back_populates='subject', lazy=True)
+
+    def to_dict(self):
+        """Serializes Subject fields."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "semester": self.semester
+        }
 
 
 class Attempt(db.Model):

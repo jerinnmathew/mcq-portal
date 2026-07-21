@@ -67,9 +67,12 @@ function getCookie(name) {
 async function fetchAPI(endpoint, options = {}) {
     // Set headers
     const headers = {
-        'Content-Type': 'application/json',
         ...(options.headers || {})
     };
+    
+    if (!(options.body instanceof FormData) && !headers['Content-Type'] && !headers['content-type']) {
+        headers['Content-Type'] = 'application/json';
+    }
     
     // Auto-inject double-submit CSRF token for state-changing operations
     const method = (options.method || 'GET').toUpperCase();
@@ -143,28 +146,6 @@ function renderNavbar() {
     const homeClass = isHome ? 'active-nav-btn' : '';
     const leaderboardClass = isLeaderboard ? 'active-nav-btn' : '';
 
-    const navButtons = `
-        <div class="flex items-center gap-3 ml-auto">
-            ${isLoggedIn && user ? `
-                <div class="flex items-center gap-3">
-                    <div class="hidden md:flex flex-col text-right">
-                        <span class="text-[10px] text-white/70 leading-none mb-1">Streak: ${user.streak || 0}</span>
-                        <span class="text-xs font-semibold text-white leading-none">${user.username}</span>
-                    </div>
-                    <div class="h-8 w-8 rounded-full ${getBadgeClass(user.badge)} flex items-center justify-center font-bold text-white text-xs ring-2 ring-white/10">
-                        ${user.username[0].toUpperCase()}
-                    </div>
-                    <button onclick="Auth.logout()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-white transition-all cursor-pointer">
-                        <i class="fas fa-sign-out-alt text-xs"></i> Logout
-                    </button>
-                </div>
-                <div class="h-6 w-px bg-white/20 hidden md:block"></div>
-            ` : ''}
-            <a href="index.html" class="nav-btn ${homeClass}">Home</a>
-            <a href="leaderboard.html" class="nav-btn ${leaderboardClass}">Leaderboard</a>
-        </div>
-    `;
-
     navbarContainer.innerHTML = `
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -174,8 +155,56 @@ function renderNavbar() {
                         <img src="assets/logo.png" alt="MCQ Portal Logo" class="h-8 w-auto object-contain rounded-lg">
                     </a>
                 </div>
-                <!-- Navigation Buttons & User Status -->
-                ${navButtons}
+
+                <!-- Desktop Navigation (md and up) -->
+                <div class="hidden md:flex items-center gap-3 ml-auto">
+                    ${isLoggedIn && user ? `
+                        <div class="flex items-center gap-3">
+                            <div class="hidden md:flex flex-col text-right">
+                                <span class="text-[10px] text-white/70 leading-none mb-1">Streak: ${user.streak || 0}</span>
+                                <span class="text-xs font-semibold text-white leading-none">${user.username}</span>
+                            </div>
+                            <div class="h-8 w-8 rounded-full ${getBadgeClass(user.badge)} flex items-center justify-center font-bold text-white text-xs ring-2 ring-white/10">
+                                ${user.username[0].toUpperCase()}
+                            </div>
+                            <button onclick="Auth.logout()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-white transition-all cursor-pointer">
+                                <i class="fas fa-sign-out-alt text-xs"></i> <span class="hidden sm:inline">Logout</span>
+                            </button>
+                        </div>
+                        <div class="h-6 w-px bg-white/20 hidden md:block"></div>
+                    ` : ''}
+                    <a href="index.html" class="nav-btn ${homeClass}">Home</a>
+                    <a href="leaderboard.html" class="nav-btn ${leaderboardClass}">Leaderboard</a>
+                    ${isLoggedIn && user && user.username === 'jerin_admin' ? `
+                        <a href="admin.html" class="nav-btn ${currentPage === 'admin.html' || currentPage === 'admin' ? 'active-nav-btn' : ''}">Admin</a>
+                    ` : ''}
+                </div>
+
+                <!-- Mobile Right Section (below md) -->
+                <div class="flex md:hidden items-center gap-1.5 ml-auto">
+                    ${isLoggedIn && user ? `
+                        <div class="h-7 w-7 rounded-full ${getBadgeClass(user.badge)} flex items-center justify-center font-bold text-white text-[10px] ring-2 ring-white/10">
+                            ${user.username[0].toUpperCase()}
+                        </div>
+                        <button onclick="Auth.logout()" class="p-1.5 rounded-lg text-xs bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-white transition-all cursor-pointer" title="Logout">
+                            <i class="fas fa-sign-out-alt text-xs"></i>
+                        </button>
+                    ` : ''}
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-all cursor-pointer">
+                        <i id="mobile-menu-icon" class="fas fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation Dropdown Panel -->
+            <div id="mobile-nav-panel" class="hidden md:hidden pb-3 border-t border-white/5 pt-3">
+                <div class="flex flex-col gap-1.5">
+                    <a href="index.html" class="nav-btn ${homeClass} w-full justify-start">Home</a>
+                    <a href="leaderboard.html" class="nav-btn ${leaderboardClass} w-full justify-start">Leaderboard</a>
+                    ${isLoggedIn && user && user.username === 'jerin_admin' ? `
+                        <a href="admin.html" class="nav-btn ${currentPage === 'admin.html' || currentPage === 'admin' ? 'active-nav-btn' : ''} w-full justify-start">Admin</a>
+                    ` : ''}
+                </div>
             </div>
         </div>
     `;

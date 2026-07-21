@@ -9,4 +9,4 @@ if __name__ == '__main__':
     print("SEA-1 MCQ Battle Platform is launching!")
     print("Access the portal at: http://localhost:5005")
     print("--------------------------------------------------")
-    app.run(host="0.0.0.0", port=5005, debug=False)
+    app.run(host="0.0.0.0", port=5005, debug=True)

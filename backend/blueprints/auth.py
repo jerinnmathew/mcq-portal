@@ -102,6 +102,11 @@ def login():
 
     user = User.query.filter_by(username=username).first()
 
+    if user and user.is_sso_user:
+        return jsonify({
+            "msg": "This account uses SSO. Please log in via padikkunnundo.app."
+        }), 403
+
     if not user or not user.check_password(password):
         current_app.logger.warning(f"SECURITY ALERT: Failed login attempt for username '{username}' from IP {request.remote_addr}")
         return jsonify({"msg": "Invalid username or password"}), 401

@@ -11,19 +11,19 @@ stats_bp = Blueprint('stats', __name__)
 def get_dashboard_stats():
     """Returns aggregated student statistics and recent attempt history for dashboard charts."""
     user_id = get_jwt_identity()
-    user = User.query.get(int(user_id))
+    user = db.session.get(User, int(user_id))
     
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
     # Ensure stats entry exists
-    stats = user.stats
+    stats = db.session.get(Stats, user.id)
     if not stats:
         stats = Stats(user_id=user.id)
         db.session.add(stats)
         db.session.commit()
 
-    # Fetch last 10 attempts for progress charts (ordered oldest to newest for chronological flow)
+    # Fetch the latest attempts without loading extra relationships
     recent_attempts = Attempt.query.filter_by(user_id=user.id)\
                                    .order_by(Attempt.submitted_at.desc())\
                                    .limit(10).all()

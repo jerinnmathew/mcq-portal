@@ -44,8 +44,8 @@
                         }
                     },
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
-                        display: ['"Outfit"', 'sans-serif'],
+                        sans: ['"Space Grotesk"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
+                        display: ['"Barlow Condensed"', '"Barlow"', 'sans-serif'],
                     }
                 }
             }
@@ -53,7 +53,7 @@
     </script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-darkblue-900 text-slate-100 min-h-screen bg-mesh flex flex-col">
+<body class="bg-[#222022] text-slate-100 min-h-screen bg-mesh flex flex-col">
 
     <!-- Header Navbar -->
     <header id="navbar-container" class="glass-panel sticky top-0 z-50 border-b border-white/5"></header>
@@ -65,24 +65,27 @@
         <div class="flex flex-col md:flex-row items-center justify-between gap-6 border-b border-white/5 pb-6">
             <div class="space-y-1 text-center md:text-left">
                 <h1 class="text-3xl font-extrabold tracking-tight font-display">
-                    Admin <span class="text-purple-400">Control Panel</span>
+                    Admin <span class="text-[#C3D809]">Control Panel</span>
                 </h1>
-                <p class="text-xs text-slate-400">Manage the MCQ bank, audit user accounts, and import questions bulk.</p>
+                <p class="text-xs text-slate-400">Manage subjects, MCQ bank, audit users, and bulk import questions.</p>
             </div>
 
             <!-- Tab Buttons -->
-            <div class="flex p-1 bg-slate-950/60 rounded-xl border border-white/5" id="admin-tabs">
-                <button onclick="switchTab('manage', this)" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-200 bg-purple-600/10 border border-purple-500/20 active-tab transition-all cursor-pointer">
-                    MANAGE MCQ BANK
+            <div class="flex flex-wrap gap-1 p-1 bg-[#2d2b2d] rounded-xl border border-[#C3D809]/15" id="admin-tabs">
+                <button onclick="switchTab('manage', this)" id="tab-btn-manage" class="px-3.5 py-2 rounded-lg text-xs font-bold text-[#111] bg-[#C3D809] shadow-sm active-tab transition-all cursor-pointer">
+                    MCQ BANK
                 </button>
-                <button onclick="switchTab('import', this)" class="px-4 py-2 rounded-lg text-xs font-bold text-gray-400 hover:text-slate-200 transition-all cursor-pointer">
-                    JSON BULK IMPORT
+                <button onclick="switchTab('subjects', this)" id="tab-btn-subjects" class="px-3.5 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-[#C3D809] transition-all cursor-pointer">
+                    SUBJECTS
                 </button>
-                <button onclick="switchTab('logs', this)" class="px-4 py-2 rounded-lg text-xs font-bold text-gray-400 hover:text-slate-200 transition-all cursor-pointer">
+                <button onclick="switchTab('import', this)" id="tab-btn-import" class="px-3.5 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-[#C3D809] transition-all cursor-pointer">
+                    BULK IMPORT
+                </button>
+                <button id="btn-clear-mcqs" onclick="clearMCQBank()" class="px-3.5 py-2 rounded-lg text-xs font-bold text-red-400 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 transition-all cursor-pointer">
+                    CLEAR BANK
+                </button>
+                <button onclick="switchTab('logs', this)" id="tab-btn-logs" class="px-3.5 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-[#C3D809] transition-all cursor-pointer">
                     AUDIT LOGS
-                </button>
-                <button onclick="switchTab('ai-gen', this)" class="px-4 py-2 rounded-lg text-xs font-bold text-gray-400 hover:text-slate-200 transition-all cursor-pointer">
-                    AI MCQ GENERATOR
                 </button>
             </div>
         </div>
@@ -145,20 +148,27 @@
                         </select>
                     </div>
 
-                    <!-- Category & Difficulty -->
-                    <div class="grid grid-cols-2 gap-3">
+                    <!-- Subject -->
+                    <div class="grid grid-cols-1 gap-3">
                         <div>
-                            <label for="form-category" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Category</label>
+                            <label for="form-subject" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Subject</label>
+                            <select id="form-subject" class="w-full px-3 py-2 rounded-xl glass-input text-xs cursor-pointer">
+                                <option value="">Select Subject</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden Difficulty select -->
+                    <div class="hidden">
+                        <select id="form-difficulty">
+                            <option value="Medium" selected>Medium</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div>
+                            <label for="form-category" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Category (optional)</label>
                             <input type="text" id="form-category" placeholder="e.g. Databases" 
                                    class="w-full px-3 py-2 rounded-xl glass-input text-xs">
-                        </div>
-                        <div>
-                            <label for="form-difficulty" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Difficulty</label>
-                            <select id="form-difficulty" class="w-full px-3 py-2 rounded-xl glass-input text-xs cursor-pointer">
-                                <option value="Easy">Easy</option>
-                                <option value="Medium" selected>Medium</option>
-                                <option value="Hard">Hard</option>
-                            </select>
                         </div>
                     </div>
 
@@ -172,9 +182,29 @@
             <!-- Right 2 Cols: Question Bank Directory Table -->
             <div class="lg:col-span-2 glass-panel rounded-2xl p-6 border border-white/5 space-y-4 h-fit">
                 <div class="border-b border-white/5 pb-2">
-                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Active MCQ Bank Directory</h3>
+                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider" id="mcq-bank-title">Active MCQ Bank Directory</h3>
                 </div>
-
+                <!-- Subject Filter Dropdown -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex items-center gap-2 flex-1 min-w-[200px]">
+                        <label for="mcq-subject-filter" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                            <i class="fas fa-filter mr-1 text-[#C3D809]"></i>Filter by Subject:
+                        </label>
+                        <select id="mcq-subject-filter" class="flex-1 px-3 py-2 rounded-xl glass-input text-xs cursor-pointer">
+                            <option value="">— Select a subject to view questions —</option>
+                        </select>
+                    </div>
+                    <button id="btn-load-questions" onclick="loadQuestionsFromFilter()" class="px-4 py-2 rounded-xl font-bold bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111] shadow-lg shadow-[#C3D809]/20 transition-all text-xs cursor-pointer flex items-center gap-1.5">
+                        <i class="fas fa-download text-xs"></i> Load Questions
+                    </button>
+                    <button onclick="clearSubjectFilter()" id="btn-clear-filter" class="px-3 py-2 rounded-xl text-xs font-bold text-slate-400 bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer hidden">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+                <div id="mcq-subject-badge" class="hidden text-[10px] font-bold text-blue-400 bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/20 inline-flex items-center gap-2">
+                    <i class="fas fa-filter"></i> Filtered by subject - 
+                    <button onclick="clearSubjectFilter()" class="underline hover:text-blue-300 cursor-pointer">Show All</button>
+                </div>
                 <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
                     <table class="w-full text-left text-xs text-slate-300">
                         <thead class="text-slate-400 uppercase border-b border-white/5 sticky top-0 bg-slate-900 z-10">
@@ -207,6 +237,33 @@
                 </div>
 
                 <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label for="import-semester" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Semester</label>
+                            <select id="import-semester" class="w-full px-3 py-2 rounded-xl glass-input text-xs cursor-pointer">
+                                <option value="">All Semesters</option>
+                                <option value="1">Sem 1</option>
+                                <option value="2">Sem 2</option>
+                                <option value="3">Sem 3</option>
+                                <option value="4">Sem 4</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="import-subject" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Subject</label>
+                            <select id="import-subject" class="w-full px-3 py-2 rounded-xl glass-input text-xs cursor-pointer">
+                                <option value="">Select Subject</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label for="bulk-import-file" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Upload .json or .csv</label>
+                            <input id="bulk-import-file" type="file" accept=".json,.csv" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-600/10 file:text-purple-400 hover:file:bg-purple-600/20 file:cursor-pointer">
+                        </div>
+                        <div></div>
+                    </div>
+
                     <!-- Textarea -->
                     <div>
                         <label for="import-json-paste" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Paste Questions JSON Array</label>
@@ -221,7 +278,7 @@
                         </button>
 
                         <button onclick="runBulkImport()" class="px-6 py-3 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-500/20 transition-all flex items-center gap-2 cursor-pointer">
-                            <span>Execute JSON Import</span> <i class="fas fa-check-circle"></i>
+                            <span>Execute Bulk Import</span> <i class="fas fa-check-circle"></i>
                         </button>
                     </div>
 
@@ -263,11 +320,11 @@
                     <!-- Required PDF layout guidelines reference -->
                     <div class="p-3.5 bg-slate-950/40 rounded-xl border border-white/5 text-[10px] space-y-1.5 font-mono text-gray-400 max-h-36 overflow-y-auto">
                         <span class="text-xs font-bold text-slate-300 block font-sans"><i class="fas fa-info-circle text-blue-400 mr-1"></i> Flexible Parser Guidelines:</span>
-                        • <b>No strict layout required!</b><br>
-                        • Questions starting with numbers (1., 2.) or ending in "?" are detected.<br>
-                        • Multiple choice options (A, B, C, D) are matched dynamically.<br>
-                        • Correct answers are scanned in surrounding text (e.g. "Ans: B").<br>
-                        • <b>Fail-safe:</b> If answers are missing, they default to option "A" automatically.
+                        &bull; <b>No strict layout required!</b><br>
+                        &bull; Questions starting with numbers (1., 2.) or ending in "?" are detected.<br>
+                        &bull; Multiple choice options (A, B, C, D) are matched dynamically.<br>
+                        &bull; Correct answers are scanned in surrounding text (e.g. "Ans: B").<br>
+                        &bull; <b>Fail-safe:</b> If answers are missing, they default to option "A" automatically.
                     </div>
 
                     <!-- Import Button -->
@@ -335,72 +392,70 @@
             </div>
         </div>
 
-        <!-- TAB 4: AI MCQ GENERATOR -->
-        <div id="tab-content-ai-gen" class="grid grid-cols-1 lg:grid-cols-3 gap-8 admin-tab-content hidden">
-            <!-- Left 1 Col: AI Generation Parameters Configurator -->
-            <div class="lg:col-span-1 glass-panel rounded-2xl p-6 border border-white/5 space-y-6 h-fit glow-active">
-                <div class="space-y-1">
-                    <h3 class="text-lg font-bold text-slate-300 uppercase tracking-wider"><i class="fas fa-robot text-purple-400 mr-2"></i> AI MCQ Generator</h3>
-                    <p class="text-xs text-slate-400">Paste study material, topics, or Previous Year Questions (PYQs) to automatically draft practice questions via Google Gemini API.</p>
-                </div>
+        <!-- TAB 4: MANAGE SUBJECTS -->
+        <div id="tab-content-subjects" class="admin-tab-content hidden space-y-6">
 
-                <form id="ai-generate-form" class="space-y-4" onsubmit="handleAIGenerate(event)">
-                    <!-- Text Area Input -->
-                    <div>
-                        <label for="ai-text-input" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Paste PYQ Questions / Text</label>
-                        <textarea id="ai-text-input" placeholder="Paste PYQ questions or notes here to generate MCQs..." rows="6"
-                                  class="w-full px-3 py-2 rounded-xl glass-input text-xs"></textarea>
+            <!-- Two-column layout: Add form + Subjects list -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- Left: Add / Edit Subject Form -->
+                <div class="lg:col-span-1 glass-panel rounded-2xl p-6 border border-white/5 space-y-5 h-fit">
+                    <div class="border-b border-white/5 pb-3 flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider" id="subject-form-title">Add New Subject</h3>
+                        <button onclick="resetSubjectForm()" id="btn-cancel-subject-edit" class="text-xs text-red-400 hover:underline hidden cursor-pointer">Cancel Edit</button>
                     </div>
 
-                    <!-- PDF Upload Input Option -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Or Upload PYQ PDF File</label>
-                        <input type="file" id="ai-pdf-input" accept=".pdf" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-600/10 file:text-purple-400 hover:file:bg-purple-600/20 file:cursor-pointer">
+                    <div class="space-y-4">
+                        <input type="hidden" id="edit-subject-id">
+
+                        <div>
+                            <label for="subject-name-input" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Subject Name</label>
+                            <input type="text" id="subject-name-input" placeholder="e.g. Data Structures" class="w-full px-3 py-2.5 rounded-xl glass-input text-sm">
+                        </div>
+
+                        <div>
+                            <label for="subject-sem-input" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Semester</label>
+                            <select id="subject-sem-input" class="w-full px-3 py-2.5 rounded-xl glass-input text-sm cursor-pointer">
+                                <option value="">Select Semester</option>
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                                <option value="3">Semester 3</option>
+                                <option value="4">Semester 4</option>
+                                <option value="5">Semester 5</option>
+                                <option value="6">Semester 6</option>
+                                <option value="7">Semester 7</option>
+                                <option value="8">Semester 8</option>
+                            </select>
+                        </div>
+
+                        <!-- Feedback box -->
+                        <div id="subject-feedback" class="hidden text-xs rounded-xl px-3 py-2.5 font-semibold"></div>
+
+                        <button onclick="saveSubject()" id="btn-save-subject" class="w-full py-3 rounded-xl font-bold bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111] shadow-lg shadow-[#C3D809]/20 transform hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                            <span id="btn-save-subject-label">Add Subject</span>
+                            <i class="fas fa-plus-circle text-xs"></i>
+                        </button>
                     </div>
 
-                    <!-- Question count selector -->
-                    <div>
-                        <label for="ai-q-count" class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Number of MCQs</label>
-                        <select id="ai-q-count" class="w-full px-3 py-2.5 rounded-xl glass-input text-xs cursor-pointer">
-                            <option value="5" selected>5 Questions</option>
-                            <option value="10">10 Questions</option>
-                            <option value="15">15 Questions</option>
-                        </select>
+                    <!-- Info block -->
+                    <div class="p-3 rounded-xl bg-[#C3D809]/5 border border-[#C3D809]/15 text-[10px] text-slate-400 space-y-1">
+                        <p><i class="fas fa-info-circle text-[#C3D809] mr-1"></i><b>Note:</b> Deleting a subject will remove the subject and detach any linked questions so they remain available.</p>
+                        <p><i class="fas fa-book text-[#C3D809] mr-1"></i>Click the <b>eye icon</b> to view/filter questions by subject. Click <b>X icon</b> to delete all questions for a subject.</p>
+                    </div>
+                </div>
+
+                <!-- Right: Subjects grouped by semester -->
+                <div class="lg:col-span-2 glass-panel rounded-2xl p-6 border border-white/5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-3">
+                        <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">All Subjects by Semester</h3>
+                        <span id="subject-total-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#C3D809]/10 text-[#C3D809] border border-[#C3D809]/20">0 Total</span>
                     </div>
 
-                    <!-- Generate button -->
-                    <button type="submit" id="btn-ai-generate" class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                        <span>Generate MCQs</span> <i class="fas fa-magic"></i>
-                    </button>
-                </form>
-            </div>
-
-            <!-- Right 2 Cols: AI Preview / Review Grid -->
-            <div class="lg:col-span-2 glass-panel rounded-2xl p-6 border border-white/5 space-y-4 h-fit">
-                <div class="border-b border-white/5 pb-2 flex items-center justify-between">
-                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Review Generated MCQs</h3>
-                    <button id="btn-import-ai" onclick="saveGeneratedMCQs()" class="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-md shadow-emerald-500/20 transition-all hidden flex items-center gap-1.5 cursor-pointer">
-                        <span>Approve & Save to DB</span> <i class="fas fa-cloud-upload-alt text-xs"></i>
-                    </button>
+                    <div id="subjects-accordion" class="space-y-3">
+                        <div class="text-center py-8 text-gray-500 text-xs">Loading subjects...</div>
+                    </div>
                 </div>
 
-                <div class="overflow-x-auto max-h-[500px]">
-                    <table class="w-full text-left text-xs text-slate-300">
-                        <thead class="text-slate-400 uppercase border-b border-white/5 sticky top-0 bg-slate-900 z-10">
-                            <tr>
-                                <th class="py-3 px-4">Question Details</th>
-                                <th class="py-3 px-2">Correct Answer</th>
-                                <th class="py-3 px-2">Cat / Diff</th>
-                                <th class="py-3 px-2 text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ai-preview-tbody">
-                            <tr>
-                                <td colspan="4" class="py-8 text-center text-gray-500">Provide input and generate questions to preview.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
 
@@ -424,125 +479,235 @@
             window.location.href = 'dashboard.html';
         }
 
+        // Global state: tracks current subject filter (null = show all)
+        var currentSubjectFilter = null;
+        var currentSubjectName = null;
+
         // Make sure page loads cleanly
-        document.addEventListener('DOMContentLoaded', () => {
-            loadQuestions();
-            
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSubjects();
             document.getElementById('mcq-form').addEventListener('submit', handleFormSubmit);
+            // Show placeholder instead of loading all questions
+            document.getElementById('mcq-tbody').innerHTML = '<tr><td colspan="5" class="py-8 text-center text-gray-400">Select a subject above and click "Load Questions" to view questions.</td></tr>';
         });
+
+        // Load questions from the filter dropdown
+        function loadQuestionsFromFilter() {
+            var filterSelect = document.getElementById('mcq-subject-filter');
+            var selectedId = filterSelect.value;
+            var selectedText = filterSelect.options[filterSelect.selectedIndex].text;
+            if (!selectedId) {
+                alert('Please select a subject first.');
+                return;
+            }
+            currentSubjectFilter = selectedId;
+            currentSubjectName = selectedText.split(' (Sem')[0]; // Extract just the name
+            updateSubjectFilterUI();
+            loadQuestions(selectedId);
+        }
 
         // Tab manager switching
         function switchTab(tabName, btn) {
-            // Adjust active styles on tabs
-            const tabButtons = document.querySelectorAll('#admin-tabs button');
-            tabButtons.forEach(b => {
-                b.className = "px-4 py-2 rounded-lg text-xs font-bold text-gray-400 hover:text-slate-200 transition-all cursor-pointer";
+            var tabButtons = document.querySelectorAll('#admin-tabs button:not(#btn-clear-mcqs)');
+            tabButtons.forEach(function(b) {
+                b.className = b.className.replace('text-[#111] bg-[#C3D809]', '').trim();
+                b.classList.remove('active-tab', 'shadow-sm');
+                b.classList.add('text-slate-400');
+                b.classList.remove('text-[#111]');
             });
-            btn.className = "px-4 py-2 rounded-lg text-xs font-bold text-slate-200 bg-purple-600/10 border border-purple-500/20 active-tab transition-all cursor-pointer";
+            btn.classList.remove('text-slate-400');
+            btn.classList.add('text-[#111]', 'bg-[#C3D809]', 'active-tab', 'shadow-sm');
 
-            // Toggle panels
-            const panels = document.querySelectorAll('.admin-tab-content');
-            panels.forEach(p => p.classList.add('hidden'));
+            var panels = document.querySelectorAll('.admin-tab-content');
+            panels.forEach(function(p) { p.classList.add('hidden'); });
 
-            const target = document.getElementById(`tab-content-${tabName}`);
-            if (target) {
-                target.classList.remove('hidden');
-            }
+            var target = document.getElementById('tab-content-' + tabName);
+            if (target) target.classList.remove('hidden');
 
-            // Trigger secondary audit pulls
-            if (tabName === 'logs') {
-                loadAuditLogs();
+            if (tabName === 'logs') loadAuditLogs();
+            if (tabName === 'subjects') loadSubjectsTab();
+
+            // When switching to manage tab, reload with current filter state
+            if (tabName === 'manage') {
+                updateSubjectFilterUI();
+                if (currentSubjectFilter) {
+                    loadQuestions(currentSubjectFilter);
+                } else {
+                    document.getElementById('mcq-tbody').innerHTML = '<tr><td colspan="5" class="py-8 text-center text-gray-400">Select a subject above and click "Load Questions" to view questions.</td></tr>';
+                }
             }
         }
 
+        // --- Subject Filter UI helpers ---
+        function updateSubjectFilterUI() {
+            var badge = document.getElementById('mcq-subject-badge');
+            var title = document.getElementById('mcq-bank-title');
+            if (currentSubjectFilter && currentSubjectName) {
+                badge.classList.remove('hidden');
+                title.textContent = 'Questions for: ' + currentSubjectName;
+            } else {
+                badge.classList.add('hidden');
+                title.textContent = 'Active MCQ Bank Directory';
+            }
+        }
+
+        function clearSubjectFilter() {
+            currentSubjectFilter = null;
+            currentSubjectName = null;
+            updateSubjectFilterUI();
+            // Reset dropdown
+            var filterSelect = document.getElementById('mcq-subject-filter');
+            if (filterSelect) filterSelect.value = '';
+            // Show placeholder
+            document.getElementById('mcq-tbody').innerHTML = '<tr><td colspan="5" class="py-8 text-center text-gray-400">Select a subject above and click "Load Questions" to view questions.</td></tr>';
+        }
+
         // --- MCQ CRUD operations ---
-        async function loadQuestions() {
-            const res = await fetchAPI('/admin/mcqs');
+        // Loading Overlay for bulk imports
+        function showLoadingOverlay(text, pct) {
+            var overlay = document.getElementById('import-loading-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'import-loading-overlay';
+                overlay.innerHTML = '<div class="fixed inset-0 z-[9999] bg-black/70 flex items-center justify-center backdrop-blur-sm">'
+                    + '<div class="bg-[#2d2b2d] rounded-2xl p-8 max-w-md w-full mx-4 border border-white/10 shadow-2xl text-center space-y-6">'
+                    + '<div class="text-4xl animate-bounce"><i class="fas fa-cloud-upload-alt text-[#C3D809]"></i></div>'
+                    + '<div class="space-y-2"><h3 class="text-lg font-bold text-white" id="overlay-status">Uploading Questions...</h3>'
+                    + '<p class="text-xs text-gray-400" id="overlay-detail">Preparing payload...</p></div>'
+                    + '<div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-white/5">'
+                    + '<div id="overlay-progress-bar" class="bg-gradient-to-r from-[#C3D809] to-green-400 h-full rounded-full transition-all duration-300 ease-out" style="width: 0%"></div></div>'
+                    + '<div class="flex justify-between text-xs text-gray-400"><span id="overlay-pct-text">0%</span>'
+                    + '<span id="overlay-count-text">0 / 0 questions</span></div></div></div>';
+                document.body.appendChild(overlay);
+            }
+            overlay.classList.remove('hidden');
+            var bar = document.getElementById('overlay-progress-bar');
+            var pctText = document.getElementById('overlay-pct-text');
+            var status = document.getElementById('overlay-status');
+            var detail = document.getElementById('overlay-detail');
+            if (bar) bar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+            if (pctText) pctText.textContent = Math.round(pct) + '%';
+            if (status) status.textContent = text || 'Uploading...';
+            if (detail) detail.textContent = 'Processed ' + Math.round(pct) + '%';
+        }
+
+        function hideLoadingOverlay() {
+            var overlay = document.getElementById('import-loading-overlay');
+            if (overlay) overlay.classList.add('hidden');
+        }
+
+        function updateOverlayProgress(pct, imported, total) {
+            var bar = document.getElementById('overlay-progress-bar');
+            var pctText = document.getElementById('overlay-pct-text');
+            var detail = document.getElementById('overlay-detail');
+            var countText = document.getElementById('overlay-count-text');
+            if (bar) bar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+            if (pctText) pctText.textContent = Math.round(pct) + '%';
+            if (detail) detail.textContent = 'Processing batch...';
+            if (countText) countText.textContent = imported + ' / ' + total + ' questions';
+            var status = document.getElementById('overlay-status');
+            if (status) {
+                if (pct < 25) status.textContent = 'Sending questions to server...';
+                else if (pct < 50) status.textContent = 'Importing into database...';
+                else if (pct < 75) status.textContent = 'Processing and validating...';
+                else if (pct < 100) status.textContent = 'Finalizing import...';
+                else status.textContent = 'Import Complete!';
+            }
+        }
+
+        async function loadQuestions(subjectFilter) {
+            var url = '/admin/mcqs?per_page=500&_t=' + Date.now(); // cache-bust
+            if (subjectFilter) url += '&subject_id=' + subjectFilter;
+            var res = await fetchAPI(url);
             if (res.error) {
                 console.error("Manage questions failed:", res.msg);
                 return;
             }
 
-            const tbody = document.getElementById('mcq-tbody');
-            if (res.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="py-6 text-center text-gray-500">No questions in database pool yet.</td>
-                    </tr>
-                `;
+            var questions = res.questions || [];
+            var total = res.total || 0;
+
+            var tbody = document.getElementById('mcq-tbody');
+            if (questions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-gray-500">No questions in database pool yet.</td></tr>';
                 return;
             }
 
             tbody.innerHTML = '';
-            res.forEach(q => {
-                const tr = document.createElement('tr');
+            questions.forEach(function(q) {
+                var tr = document.createElement('tr');
                 tr.className = "border-b border-white/5 hover:bg-white/5 transition-all";
-                tr.innerHTML = `
-                    <td class="py-3.5 px-2 font-bold text-gray-500">${q.id}</td>
-                    <td class="py-3.5 px-4 font-medium max-w-sm sm:max-w-xs md:max-w-md">
-                        <div class="space-y-1">
-                            <span class="text-slate-100 font-bold block leading-normal line-clamp-2">${q.question}</span>
-                            <div class="text-[10px] text-gray-400 flex flex-wrap gap-2">
-                                <span>A: ${q.option_a}</span> | <span>B: ${q.option_b}</span> | <span>C: ${q.option_c}</span> | <span>D: ${q.option_d}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="py-3.5 px-2 font-bold text-emerald-400 text-center">${q.correct_answer}</td>
-                    <td class="py-3.5 px-2 text-slate-300 font-semibold">${q.category}</td>
-                    <td class="py-3.5 px-4">
-                        <div class="flex justify-center gap-2">
-                            <button onclick="editMCQ(${JSON.stringify(q).replace(/"/g, '&quot;')})" class="px-2.5 py-1 rounded bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 font-bold text-[10px] cursor-pointer">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                            <button onclick="deleteMCQ(${q.id})" class="px-2.5 py-1 rounded bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 font-bold text-[10px] cursor-pointer">
-                                <i class="fas fa-trash-alt"></i> Del
-                            </button>
-                        </div>
-                    </td>
-                `;
+                var escapedJSON = JSON.stringify(q).replace(/"/g, '"');
+                tr.innerHTML = '<td class="py-3.5 px-2 font-bold text-gray-500">' + q.id + '</td>'
+                    + '<td class="py-3.5 px-4 font-medium max-w-sm sm:max-w-xs md:max-w-md">'
+                    + '<div class="space-y-1"><span class="text-slate-100 font-bold block leading-normal line-clamp-2">' + escapeHTML(q.question) + '</span>'
+                    + '<div class="text-[10px] text-gray-400 flex flex-wrap gap-2">'
+                    + '<span>A: ' + escapeHTML(q.option_a) + '</span> | <span>B: ' + escapeHTML(q.option_b) + '</span> | <span>C: ' + escapeHTML(q.option_c) + '</span> | <span>D: ' + escapeHTML(q.option_d) + '</span>'
+                    + '</div></div></td>'
+                    + '<td class="py-3.5 px-2 font-bold text-emerald-400 text-center">' + q.correct_answer + '</td>'
+                    + '<td class="py-3.5 px-2 text-slate-300 font-semibold">' + escapeHTML(q.category) + '</td>'
+                    + '<td class="py-3.5 px-4"><div class="flex justify-center gap-2">'
+                    + "<button onclick='editMCQ(" + escapedJSON + ")' class='px-2.5 py-1 rounded bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 font-bold text-[10px] cursor-pointer'><i class='fas fa-edit'></i> Edit</button>"
+                    + "<button onclick='deleteMCQ(" + q.id + ")' class='px-2.5 py-1 rounded bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 font-bold text-[10px] cursor-pointer'><i class='fas fa-trash-alt'></i> Del</button>"
+                    + '</div></td>';
                 tbody.appendChild(tr);
             });
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            var d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
         }
 
         async function handleFormSubmit(e) {
             e.preventDefault();
 
-            const editId = document.getElementById('edit-qid').value;
+            var editId = document.getElementById('edit-qid').value;
             
-            const question = document.getElementById('form-question').value.trim();
-            const option_a = document.getElementById('form-option-a').value.trim();
-            const option_b = document.getElementById('form-option-b').value.trim();
-            const option_c = document.getElementById('form-option-c').value.trim();
-            const option_d = document.getElementById('form-option-d').value.trim();
-            const correct_answer = document.getElementById('form-correct-answer').value;
-            const category = document.getElementById('form-category').value.trim() || 'General';
-            const difficulty = document.getElementById('form-difficulty').value;
+            var question = document.getElementById('form-question').value.trim();
+            var option_a = document.getElementById('form-option-a').value.trim();
+            var option_b = document.getElementById('form-option-b').value.trim();
+            var option_c = document.getElementById('form-option-c').value.trim();
+            var option_d = document.getElementById('form-option-d').value.trim();
+            var correct_answer = document.getElementById('form-correct-answer').value;
+            var category = document.getElementById('form-category').value.trim() || 'General';
+            var difficulty = document.getElementById('form-difficulty').value;
 
-            const payload = {
-                question, option_a, option_b, option_c, option_d,
-                correct_answer, category, difficulty
+            var subject_id = document.getElementById('form-subject').value;
+            var payload = {
+                question: question,
+                option_a: option_a,
+                option_b: option_b,
+                option_c: option_c,
+                option_d: option_d,
+                correct_answer: correct_answer,
+                category: category,
+                difficulty: difficulty,
+                subject_id: subject_id || null
             };
 
-            const isEdit = !!editId;
-            const endpoint = isEdit ? `/admin/mcqs/${editId}` : '/admin/mcqs';
-            const method = isEdit ? 'PUT' : 'POST';
+            var isEdit = !!editId;
+            var endpoint = isEdit ? '/api/admin/mcqs/' + editId : '/api/admin/mcqs';
+            var method = isEdit ? 'PUT' : 'POST';
 
-            const res = await fetchAPI(endpoint, {
+            var res = await fetchAPI(endpoint, {
                 method: method,
                 body: JSON.stringify(payload)
             });
 
             if (res.error) {
-                alert(`Error saving MCQ: ${res.msg}`);
+                alert('Error saving MCQ: ' + res.msg);
             } else {
                 alert(res.msg);
                 resetForm();
-                loadQuestions();
+                await loadQuestions(currentSubjectFilter);
             }
         }
 
         function editMCQ(q) {
-            document.getElementById('form-title').innerText = `Edit Question #${q.id}`;
+            document.getElementById('form-title').innerText = 'Edit Question #' + q.id;
             document.getElementById('btn-cancel-edit').classList.remove('hidden');
             
             document.getElementById('edit-qid').value = q.id;
@@ -552,501 +717,469 @@
             document.getElementById('form-option-c').value = q.option_c;
             document.getElementById('form-option-d').value = q.option_d;
             document.getElementById('form-correct-answer').value = q.correct_answer;
+            document.getElementById('form-subject').value = q.subject_id || '';
             document.getElementById('form-category').value = q.category;
             document.getElementById('form-difficulty').value = q.difficulty || "Medium";
 
-            // Scroll form into view if needed
             document.getElementById('mcq-form').scrollIntoView({ behavior: 'smooth' });
         }
 
         async function deleteMCQ(qid) {
-            const proceed = confirm(`Are you sure you want to permanently delete MCQ #${qid}?`);
+            var proceed = confirm('Are you sure you want to permanently delete MCQ #' + qid + '?');
             if (!proceed) return;
 
-            const res = await fetchAPI(`/admin/mcqs/${qid}`, { method: 'DELETE' });
+            var res = await fetchAPI('/api/admin/mcqs/' + qid, { method: 'DELETE' });
             if (res.error) {
-                alert(`Delete failed: ${res.msg}`);
+                alert('Delete failed: ' + res.msg);
             } else {
                 alert(res.msg);
-                loadQuestions();
+                await loadQuestions(currentSubjectFilter);
             }
         }
 
         function resetForm() {
             document.getElementById('form-title').innerText = 'Add New MCQ';
             document.getElementById('btn-cancel-edit').classList.add('hidden');
-            
             document.getElementById('edit-qid').value = '';
             document.getElementById('mcq-form').reset();
+            document.getElementById('form-subject').value = '';
         }
 
         // --- JSON Bulk Import ---
         function loadSampleTemplate() {
-            const sample = [
+            var sample = [
                 {
-                    "question": "Which layer of the OSI model does encryption/decryption happen?",
-                    "option_a": "Physical Layer",
-                    "option_b": "Transport Layer",
-                    "option_c": "Presentation Layer",
-                    "option_d": "Application Layer",
-                    "correct_answer": "C",
-                    "category": "Security",
-                    "difficulty": "Hard"
+                    "question": "Which component of a computer executes instructions?",
+                    "option_a": "Keyboard",
+                    "option_b": "CPU",
+                    "option_c": "Monitor",
+                    "option_d": "Printer",
+                    "correct_answer": "B",
+                    "category": "Computer Fundamentals",
+                    "difficulty": "Medium"
                 },
                 {
-                    "question": "Which of these is NOT a primitive data structure in programming languages?",
-                    "option_a": "Integer",
-                    "option_b": "Linked List",
-                    "option_c": "Boolean",
-                    "option_d": "Character",
-                    "correct_answer": "B",
-                    "category": "Data Structures",
+                    "question": "What does HTTP stand for?",
+                    "option_a": "HyperText Transfer Protocol",
+                    "option_b": "High Transfer Text Protocol",
+                    "option_c": "Hyperlink Text Transfer Package",
+                    "option_d": "Host Transfer Text Protocol",
+                    "correct_answer": "A",
+                    "category": "Web Technology",
                     "difficulty": "Easy"
                 }
             ];
-
             document.getElementById('import-json-paste').value = JSON.stringify(sample, null, 2);
         }
 
-        async function runBulkImport() {
-            const pasteData = document.getElementById('import-json-paste').value.trim();
-            if (!pasteData) {
-                alert("Paste standard JSON formatted questions array first!");
-                return;
+        async function clearMCQBank() {
+            var confirmed = confirm('This will permanently delete every MCQ from the database. Continue?');
+            if (!confirmed) return;
+
+            var button = document.getElementById('btn-clear-mcqs');
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<span>Clearing...</span>';
             }
 
-            let parsed;
             try {
-                parsed = JSON.parse(pasteData);
-            } catch (err) {
-                alert(`Invalid JSON formatting: ${err.message}`);
-                return;
+                var res = await fetchAPI('/admin/mcqs/clear', { method: 'POST' });
+                if (res.error) {
+                    alert(res.msg || 'Failed to clear the MCQ bank.');
+                } else {
+                    alert(res.msg || 'MCQ bank cleared successfully.');
+                    currentSubjectFilter = null;
+                    currentSubjectName = null;
+                    updateSubjectFilterUI();
+                    await loadQuestions();
+                }
+            } finally {
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = 'CLEAR MCQ BANK';
+                }
             }
+        }
 
-            const reportBox = document.getElementById('import-report-box');
-            const reportList = document.getElementById('report-list');
-            const reportTitle = document.getElementById('report-title');
-
-            reportBox.classList.add('hidden');
-
-            const res = await fetchAPI('/admin/import', {
-                method: 'POST',
-                body: JSON.stringify(parsed)
-            });
-
+        async function loadSubjects() {
+            var res = await fetchAPI('/subjects?_t=' + Date.now()); // cache-bust
             if (res.error) {
-                alert(`Batch upload rejected: ${res.msg}`);
+                console.error('Failed to load subjects:', res.msg);
                 return;
             }
+            var subjects = res.subjects || [];
 
-            // Success report
-            reportBox.classList.remove('hidden');
-            reportTitle.className = "font-bold uppercase tracking-wider text-emerald-400";
-            reportTitle.innerHTML = `<i class="fas fa-check-circle"></i> Import completed successfully!`;
-            
-            reportList.innerHTML = `<li>${res.msg}</li>`;
-            if (res.errors && res.errors.length > 0) {
-                reportTitle.className = "font-bold uppercase tracking-wider text-yellow-400";
-                reportTitle.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Import completed with warnings`;
-                
-                res.errors.forEach(err => {
-                    const li = document.createElement('li');
-                    li.className = 'text-red-400';
-                    li.innerText = err;
-                    reportList.appendChild(li);
+            // Fill Manage form subject options with all subjects
+            var formSelect = document.getElementById('form-subject');
+            if (formSelect) {
+                formSelect.innerHTML = '<option value="">Select Subject</option>';
+                subjects.forEach(function(subject) {
+                    var option = document.createElement('option');
+                    option.value = subject.id;
+                    option.textContent = subject.name + ' (Sem ' + subject.semester + ')';
+                    formSelect.appendChild(option);
                 });
             }
 
-            // Reload CRUD bank table data
-            loadQuestions();
+            // Fill MCQ Bank filter dropdown
+            var filterSelect = document.getElementById('mcq-subject-filter');
+            if (filterSelect) {
+                filterSelect.innerHTML = '<option value="">— Select a subject to view questions —</option>';
+                subjects.forEach(function(subject) {
+                    var option = document.createElement('option');
+                    option.value = subject.id;
+                    option.textContent = subject.name + ' (Sem ' + subject.semester + ')';
+                    filterSelect.appendChild(option);
+                });
+            }
+
+            // Fill import-subject based on selected import-semester
+            var importSemesterEl = document.getElementById('import-semester');
+            var importSelect = document.getElementById('import-subject');
+
+            function renderImportSubjects() {
+                if (!importSelect) return;
+                var semVal = importSemesterEl ? importSemesterEl.value : '';
+                importSelect.innerHTML = '<option value="">Select Subject</option>';
+                var filtered = !semVal ? subjects : subjects.filter(function(s) { return String(s.semester) === String(semVal); });
+                filtered.forEach(function(subject) {
+                    var option = document.createElement('option');
+                    option.value = subject.id;
+                    option.textContent = subject.name + ' (Sem ' + subject.semester + ')';
+                    importSelect.appendChild(option);
+                });
+            }
+
+            renderImportSubjects();
+
+            if (importSemesterEl) {
+                importSemesterEl.addEventListener('change', function() {
+                    renderImportSubjects();
+                });
+            }
+        }
+
+        async function runBulkImport() {
+            var pasteData = document.getElementById('import-json-paste').value.trim();
+            var selectedFile = document.getElementById('bulk-import-file').files[0];
+            var subjectId = document.getElementById('import-subject').value;
+            var reportBox = document.getElementById('import-report-box');
+            var reportList = document.getElementById('report-list');
+            var reportTitle = document.getElementById('report-title');
+
+            reportBox.classList.add('hidden');
+
+            var allQuestions = [];
+
+            if (pasteData) {
+                var parsed;
+                try { parsed = JSON.parse(pasteData); } catch (err) { alert('Invalid JSON: ' + err.message); return; }
+                if (Array.isArray(parsed)) { allQuestions = parsed; }
+                else if (parsed && typeof parsed === 'object') { allQuestions = parsed.questions || parsed.data || parsed.items || []; }
+                else { alert("Invalid JSON content."); return; }
+            } else if (selectedFile) {
+                var formData = new FormData();
+                formData.append('file', selectedFile);
+                if (subjectId) formData.append('subject_id', subjectId);
+                try {
+                    var res = await fetchAPI('/admin/import', { method: 'POST', body: formData });
+                    if (res.error) { alert('Upload rejected: ' + res.msg); return; }
+                    reportBox.classList.remove('hidden');
+                    reportTitle.className = "font-bold uppercase tracking-wider text-emerald-400";
+                    reportTitle.innerHTML = '<i class="fas fa-check-circle"></i> Import completed!';
+                    reportList.innerHTML = '<li>' + res.msg + '</li>';
+                    if (res.errors && res.errors.length > 0) {
+                        reportTitle.className = "font-bold uppercase tracking-wider text-yellow-400";
+                        reportTitle.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Import with warnings';
+                        res.errors.forEach(function(err) { var li = document.createElement('li'); li.className = 'text-red-400'; li.innerText = err; reportList.appendChild(li); });
+                    }
+                    await loadQuestions(currentSubjectFilter);
+                    return;
+                } catch (err) { alert('Import failed: ' + err.message); return; }
+            } else { alert("Paste JSON or upload file."); return; }
+
+            if (allQuestions.length === 0) { alert("No questions found."); return; }
+
+            var BATCH_SIZE = 100;
+            var totalQuestions = allQuestions.length;
+            var totalBatches = Math.ceil(totalQuestions / BATCH_SIZE);
+
+            showLoadingOverlay('Starting import...', 0);
+            updateOverlayProgress(0, 0, totalQuestions);
+
+            var totalImported = 0;
+            var allErrors = [];
+
+            for (var i = 0; i < totalBatches; i++) {
+                var start = i * BATCH_SIZE;
+                var end = Math.min(start + BATCH_SIZE, totalQuestions);
+                var batch = allQuestions.slice(start, end);
+                var payload = { questions: batch, batch_index: i, total_batches: totalBatches };
+                if (subjectId) payload.subject_id = subjectId;
+                try {
+                    var res = await fetchAPI('/admin/import/batch', { method: 'POST', body: JSON.stringify(payload) });
+                    if (res.error) { allErrors.push('Batch ' + (i+1) + ': ' + res.msg); }
+                    else {
+                        totalImported += res.imported || 0;
+                        if (res.errors && res.errors.length > 0) { res.errors.forEach(function(e) { allErrors.push('Batch ' + (i+1) + ': ' + e); }); }
+                    }
+                } catch (err) { allErrors.push('Batch ' + (i+1) + ': Network error - ' + err.message); }
+                var pct = ((i + 1) / totalBatches) * 100;
+                updateOverlayProgress(pct, totalImported, totalQuestions);
+            }
+
+            updateOverlayProgress(100, totalImported, totalQuestions);
+            setTimeout(function() {
+                hideLoadingOverlay();
+                reportBox.classList.remove('hidden');
+                if (allErrors.length === 0) {
+                    reportTitle.className = "font-bold uppercase tracking-wider text-emerald-400";
+                    reportTitle.innerHTML = '<i class="fas fa-check-circle"></i> Import completed!';
+                    reportList.innerHTML = '<li>Imported ' + totalImported + ' / ' + totalQuestions + ' questions.</li>';
+                } else {
+                    reportTitle.className = "font-bold uppercase tracking-wider text-yellow-400";
+                    reportTitle.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Import with ' + allErrors.length + ' error(s)';
+                    reportList.innerHTML = '<li class="text-emerald-400">Imported ' + totalImported + ' / ' + totalQuestions + '.</li>';
+                    allErrors.forEach(function(err) { var li = document.createElement('li'); li.className = 'text-red-400'; li.innerText = err; reportList.appendChild(li); });
+                }
+                loadQuestions(currentSubjectFilter);
+            }, 500);
         }
 
         // --- PDF Question Import ---
-        // Drag and Drop listeners
-        const dropArea = document.getElementById('pdf-drag-drop');
-        const fileInput = document.getElementById('pdf-file-input');
-        const uploadText = document.getElementById('pdf-upload-text');
-        const runPdfBtn = document.getElementById('btn-run-pdf-import');
+        var dropArea = document.getElementById('pdf-drag-drop');
+        var fileInput = document.getElementById('pdf-file-input');
+        var uploadText = document.getElementById('pdf-upload-text');
+        var runPdfBtn = document.getElementById('btn-run-pdf-import');
+        var selectedPdfFile = null;
 
-        let selectedPdfFile = null;
-
-        // Highlight drop area when dragging over
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                dropArea.classList.add('border-purple-500/60', 'bg-purple-500/5');
-            }, false);
+        ['dragenter', 'dragover'].forEach(function(eventName) {
+            dropArea.addEventListener(eventName, function(e) { e.preventDefault(); dropArea.classList.add('border-purple-500/60', 'bg-purple-500/5'); }, false);
+        });
+        ['dragleave', 'drop'].forEach(function(eventName) {
+            dropArea.addEventListener(eventName, function(e) { e.preventDefault(); dropArea.classList.remove('border-purple-500/60', 'bg-purple-500/5'); }, false);
         });
 
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                dropArea.classList.remove('border-purple-500/60', 'bg-purple-500/5');
-            }, false);
+        dropArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            var files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].name.toLowerCase().endsWith('.pdf')) { handleSelectedFile(files[0]); }
+            else { alert("Please drop a valid PDF file."); }
         });
 
-        // Handle dropped files
-        dropArea.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files.length > 0 && files[0].name.toLowerCase().endsWith('.pdf')) {
-                handleSelectedFile(files[0]);
-            } else {
-                alert("Please drop a valid PDF file.");
-            }
-        });
-
-        // Browse file listener
-        fileInput.addEventListener('change', (e) => {
-            if (fileInput.files.length > 0) {
-                handleSelectedFile(fileInput.files[0]);
-            }
-        });
+        fileInput.addEventListener('change', function(e) { if (fileInput.files.length > 0) handleSelectedFile(fileInput.files[0]); });
 
         function handleSelectedFile(file) {
             selectedPdfFile = file;
-            uploadText.innerText = `Selected File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            uploadText.innerText = 'Selected File: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
             document.getElementById('pdf-upload-icon').className = "fas fa-file-pdf text-4xl text-red-400 animate-pulse";
         }
 
         async function runPdfImport() {
-            if (!selectedPdfFile) {
-                alert("Please select or drag-and-drop a PDF file first.");
-                return;
-            }
-
-            const progressContainer = document.getElementById('pdf-progress-container');
-            const progressBar = document.getElementById('pdf-progress-bar');
-            const progressPct = document.getElementById('pdf-progress-pct');
-            const progressStatus = document.getElementById('pdf-progress-status');
-            const reportBox = document.getElementById('pdf-report-box');
-            const reportList = document.getElementById('pdf-report-list');
-
+            if (!selectedPdfFile) { alert("Please select a PDF file."); return; }
+            var progressContainer = document.getElementById('pdf-progress-container');
+            var progressBar = document.getElementById('pdf-progress-bar');
+            var progressPct = document.getElementById('pdf-progress-pct');
+            var progressStatus = document.getElementById('pdf-progress-status');
+            var reportBox = document.getElementById('pdf-report-box');
+            var reportList = document.getElementById('pdf-report-list');
             reportBox.classList.add('hidden');
             progressContainer.classList.remove('hidden');
-            
             runPdfBtn.disabled = true;
-            runPdfBtn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> Processing PDF...`;
-
-            // Progress Mocking (since standard fetch uploads don't report backend parsing state in real-time)
-            let pct = 0;
+            runPdfBtn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> Processing PDF...';
+            var pct = 0;
             progressBar.style.width = '0%';
             progressPct.innerText = '0%';
             progressStatus.innerText = 'Reading document text...';
-
-            const progressInterval = setInterval(() => {
-                if (pct < 90) {
-                    pct += 10;
-                    progressBar.style.width = `${pct}%`;
-                    progressPct.innerText = `${pct}%`;
-                    if (pct === 40) progressStatus.innerText = 'Extracting pages...';
-                    if (pct === 70) progressStatus.innerText = 'Parsing questions & choices...';
-                }
+            var progressInterval = setInterval(function() {
+                if (pct < 90) { pct += 10; progressBar.style.width = pct + '%'; progressPct.innerText = pct + '%'; if (pct === 40) progressStatus.innerText = 'Extracting pages...'; if (pct === 70) progressStatus.innerText = 'Parsing questions...'; }
             }, 300);
-
-            // Construct FormData
-            const formData = new FormData();
+            var formData = new FormData();
             formData.append('file', selectedPdfFile);
-
-            const csrfToken = getCookie('csrf_access_token');
-
+            var csrfToken = getCookie('csrf_access_token');
             try {
-                const response = await fetch('/api/admin/import-pdf', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-Token': csrfToken
-                    },
-                    credentials: 'same-origin', // Ensure secure cookies are sent with requests
-                    body: formData
-                });
-
+                var response = await fetch('/api/admin/import-pdf', { method: 'POST', headers: { 'X-CSRF-Token': csrfToken }, credentials: 'same-origin', body: formData });
                 clearInterval(progressInterval);
-                progressBar.style.width = '100%';
-                progressPct.innerText = '100%';
-                progressStatus.innerText = 'Completed.';
-
-                const data = await response.json();
-
-                runPdfBtn.disabled = false;
-                runPdfBtn.innerHTML = `<span>Run PDF Import</span> <i class="fas fa-file-upload"></i>`;
-
-                if (!response.ok) {
-                    alert(`Import failed: ${data.msg}`);
-                    progressContainer.classList.add('hidden');
-                    return;
-                }
-
-                // Render report
+                progressBar.style.width = '100%'; progressPct.innerText = '100%'; progressStatus.innerText = 'Completed.';
+                var data = await response.json();
+                runPdfBtn.disabled = false; runPdfBtn.innerHTML = '<span>Run PDF Import</span> <i class="fas fa-file-upload"></i>';
+                if (!response.ok) { alert('Import failed: ' + data.msg); progressContainer.classList.add('hidden'); return; }
                 reportBox.classList.remove('hidden');
-                reportList.innerHTML = `
-                    <li class="text-emerald-400 font-semibold">${data.msg}</li>
-                    <li class="text-gray-400">Total Skipped/Failed Rows: ${data.skipped || 0}</li>
-                `;
-
-                // Reload question bank table
-                loadQuestions();
-                
-                // Clear selection
-                selectedPdfFile = null;
-                uploadText.innerText = "Drag and drop your PDF here or click to browse";
+                reportList.innerHTML = '<li class="text-emerald-400 font-semibold">' + data.msg + '</li><li class="text-gray-400">Skipped: ' + (data.skipped || 0) + '</li>';
+                await loadQuestions(currentSubjectFilter);
+                selectedPdfFile = null; uploadText.innerText = "Drag and drop your PDF here or click to browse";
                 document.getElementById('pdf-upload-icon').className = "fas fa-cloud-upload-alt text-4xl text-purple-400 mb-3";
-
             } catch (err) {
-                clearInterval(progressInterval);
-                runPdfBtn.disabled = false;
-                runPdfBtn.innerHTML = `<span>Run PDF Import</span> <i class="fas fa-file-upload"></i>`;
-                alert(`Error uploading file: ${err.message}`);
-                progressContainer.classList.add('hidden');
+                clearInterval(progressInterval); runPdfBtn.disabled = false; runPdfBtn.innerHTML = '<span>Run PDF Import</span> <i class="fas fa-file-upload"></i>';
+                alert('Error: ' + err.message); progressContainer.classList.add('hidden');
             }
         }
-
-        // Add runPdfImport listener
         runPdfBtn.addEventListener('click', runPdfImport);
 
         // --- Audit Logs & Accounts Pulls ---
         async function loadAuditLogs() {
-            // Pull users list
-            const userRes = await fetchAPI('/admin/users');
+            var userRes = await fetchAPI('/admin/users?_t=' + Date.now());
             if (userRes && !userRes.error) {
-                const tbody = document.getElementById('audit-users-tbody');
+                var tbody = document.getElementById('audit-users-tbody');
                 tbody.innerHTML = '';
-                userRes.forEach(u => {
-                    const tr = document.createElement('tr');
-                    tr.className = "border-b border-white/5 hover:bg-white/5 text-slate-300";
-                    tr.innerHTML = `
-                        <td class="py-2.5 px-2 font-bold text-gray-500">${u.id}</td>
-                        <td class="py-2.5 px-4 font-semibold text-slate-100">${u.username}</td>
-                        <td class="py-2.5 px-2">
-                            <span class="px-2 py-0.5 rounded text-[9px] font-bold ${getBadgeStyleClass(u.badge)}">${u.badge}</span>
-                        </td>
-                        <td class="py-2.5 px-2 font-bold text-orange-400"><i class="fas fa-calendar-alt mr-1"></i>${u.streak || 0}</td>
-                        <td class="py-2.5 px-4 font-extrabold text-blue-400">${u.xp_points} XP</td>
-                    `;
+                userRes.forEach(function(u) {
+                    var tr = document.createElement('tr'); tr.className = "border-b border-white/5 hover:bg-white/5 text-slate-300";
+                    tr.innerHTML = '<td class="py-2.5 px-2 font-bold text-gray-500">' + u.id + '</td><td class="py-2.5 px-4 font-semibold text-slate-100">' + u.username + '</td>'
+                        + '<td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded text-[9px] font-bold ' + getBadgeStyleClass(u.badge) + '">' + u.badge + '</span></td>'
+                        + '<td class="py-2.5 px-2 font-bold text-orange-400"><i class="fas fa-calendar-alt mr-1"></i>' + (u.streak || 0) + '</td>'
+                        + '<td class="py-2.5 px-4 font-extrabold text-blue-400">' + u.xp_points + ' XP</td>';
                     tbody.appendChild(tr);
                 });
             }
-
-            // Pull attempts list
-            const attRes = await fetchAPI('/admin/attempts');
+            var attRes = await fetchAPI('/admin/attempts?_t=' + Date.now());
             if (attRes && !attRes.error) {
-                const tbody = document.getElementById('audit-attempts-tbody');
+                var tbody = document.getElementById('audit-attempts-tbody');
                 tbody.innerHTML = '';
-                
-                if (attRes.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">No attempts logged yet.</td></tr>`;
-                    return;
-                }
-
-                attRes.forEach(att => {
-                    const tr = document.createElement('tr');
-                    tr.className = "border-b border-white/5 hover:bg-white/5 text-slate-300";
-                    tr.innerHTML = `
-                        <td class="py-2.5 px-4 font-semibold text-blue-400">${att.username}</td>
-                        <td class="py-2.5 px-4 text-slate-400">${formatDate(att.submitted_at)}</td>
-                        <td class="py-2.5 px-4 font-bold text-slate-100">${att.score} / ${att.total_questions}</td>
-                        <td class="py-2.5 px-2">
-                            <span class="px-2 py-0.5 rounded text-[9px] font-bold ${att.accuracy >= 80 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}">
-                                ${att.accuracy}%
-                            </span>
-                        </td>
-                    `;
+                if (attRes.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-gray-500">No attempts logged yet.</td></tr>'; return; }
+                attRes.forEach(function(att) {
+                    var tr = document.createElement('tr'); tr.className = "border-b border-white/5 hover:bg-white/5 text-slate-300";
+                    tr.innerHTML = '<td class="py-2.5 px-4 font-semibold text-blue-400">' + att.username + '</td><td class="py-2.5 px-4 text-slate-400">' + formatDate(att.submitted_at) + '</td>'
+                        + '<td class="py-2.5 px-4 font-bold text-slate-100">' + att.score + ' / ' + att.total_questions + '</td>'
+                        + '<td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded text-[9px] font-bold ' + (att.accuracy >= 80 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20') + '">' + att.accuracy + '%</span></td>';
                     tbody.appendChild(tr);
                 });
             }
         }
 
         function getBadgeStyleClass(badge) {
-            const b = (badge || '').toLowerCase();
+            var b = (badge || '').toLowerCase();
             if (b === 'platinum') return 'bg-slate-300/10 text-slate-200 border border-slate-300/20';
             if (b === 'gold') return 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20';
             if (b === 'silver') return 'bg-slate-400/10 text-slate-400 border border-slate-400/20';
             return 'bg-amber-700/10 text-amber-500 border border-amber-700/20';
         }
 
-        // --- AI MCQ Generator Client Logic ---
-        let generatedMCQs = [];
+        // ─── SUBJECTS TAB ───────────────────────────────────────────
+        var subjectsData = {};
 
-        async function handleAIGenerate(event) {
-            event.preventDefault();
-            const textInput = document.getElementById('ai-text-input').value.trim();
-            const pdfInput = document.getElementById('ai-pdf-input').files[0];
-            const qCount = document.getElementById('ai-q-count').value;
-            const generateBtn = document.getElementById('btn-ai-generate');
+        async function loadSubjectsTab() {
+            var res = await fetchAPI('/admin/subjects?_t=' + Date.now());
+            if (res.error) { showSubjectFeedback('Failed: ' + res.msg, false); return; }
+            subjectsData = res.grouped || {};
+            document.getElementById('subject-total-badge').textContent = res.total + ' Total';
+            renderSubjectsAccordion();
+        }
 
-            if (!textInput && !pdfInput) {
-                alert("Please provide either pasted PYQ text or upload a PYQ PDF file.");
-                return;
-            }
+        function renderSubjectsAccordion() {
+            var container = document.getElementById('subjects-accordion');
+            var semesters = Object.keys(subjectsData).sort(function(a, b) { return parseInt(a) - parseInt(b); });
+            if (semesters.length === 0) { container.innerHTML = '<div class="text-center py-10 text-gray-500 text-xs">No subjects found.</div>'; return; }
 
-            const formData = new FormData();
-            formData.append('count', qCount);
-            if (pdfInput) {
-                formData.append('file', pdfInput);
-            } else {
-                formData.append('text', textInput);
-            }
+            container.innerHTML = semesters.map(function(sem) {
+                var subjects = subjectsData[sem];
+                var rows = subjects.map(function(s) {
+                    var escapedName = s.name.replace(/'/g, "\\'").replace(/"/g, '"');
+                    return '<div class="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-[#C3D809]/5 transition-all group" id="subject-row-' + s.id + '">'
+                        + '<div class="flex items-center gap-3 flex-1 min-w-0"><i class="fas fa-book-open text-[#C3D809]/50 text-xs"></i>'
+                        + '<span class="text-sm text-slate-200 font-medium truncate" title="' + escapeHTML(s.name) + '">' + escapeHTML(s.name) + '</span></div>'
+                        + '<div class="flex items-center gap-1 flex-shrink-0">'
+                        + '<span class="px-2 py-0.5 rounded text-[9px] font-bold ' + (s.question_count > 0 ? 'bg-[#C3D809]/10 text-[#C3D809] border border-[#C3D809]/20' : 'bg-white/5 text-gray-500 border border-white/10') + '">' + s.question_count + ' Q</span>'
+                        + "<button onclick='viewSubjectQuestions(" + s.id + ", \"" + escapedName + "\")' class='px-2 py-1 rounded bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 text-[10px] font-bold cursor-pointer opacity-0 group-hover:opacity-100 transition-all' title='View questions for this subject'><i class='fas fa-eye'></i></button>"
+                        + "<button onclick='editSubject(" + s.id + ", \"" + escapedName + "\", " + s.semester + ")' class='px-2 py-1 rounded bg-[#C3D809]/10 hover:bg-[#C3D809]/20 border border-[#C3D809]/20 text-[#C3D809] text-[10px] font-bold cursor-pointer opacity-0 group-hover:opacity-100 transition-all'><i class='fas fa-edit'></i></button>"
+                        + "<button onclick='deleteSubject(" + s.id + ", \"" + escapedName + "\")' class='px-2 py-1 rounded bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 text-[10px] font-bold cursor-pointer opacity-0 group-hover:opacity-100 transition-all' title='Delete subject'><i class='fas fa-trash-alt'></i></button>"
+                        + "<button onclick='deleteAllSubjectQuestions(" + s.id + ", \"" + escapedName + "\", " + s.question_count + ")' class='px-2 py-1 rounded bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 text-[10px] font-bold cursor-pointer opacity-0 group-hover:opacity-100 transition-all' title='Delete all questions'><i class='fas fa-times-circle'></i></button>"
+                        + '</div></div>';
+                }).join('');
+                return '<details class="glass-card rounded-xl border border-white/5 overflow-hidden" open><summary class="flex items-center justify-between px-4 py-3 cursor-pointer select-none hover:bg-[#C3D809]/5 transition-all">'
+                    + '<div class="flex items-center gap-3"><span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-[#C3D809] text-[#111] text-xs font-extrabold">' + sem + '</span>'
+                    + '<span class="text-sm font-bold text-slate-200 uppercase tracking-wide">Semester ' + sem + '</span></div>'
+                    + '<span class="text-xs text-[#C3D809] font-bold">' + subjects.length + ' subject' + (subjects.length !== 1 ? 's' : '') + '</span></summary>'
+                    + '<div class="px-2 pb-2 pt-1 space-y-0.5">' + rows + '</div></details>';
+            }).join('');
+        }
 
-            // Set loading state
-            generateBtn.disabled = true;
-            generateBtn.innerHTML = `<span>Generating MCQs...</span> <i class="fas fa-spinner fa-spin"></i>`;
-            const previewTbody = document.getElementById('ai-preview-tbody');
-            previewTbody.innerHTML = `
-                <tr>
-                    <td colspan="4" class="py-8 text-center text-slate-400">
-                        <i class="fas fa-robot text-2xl text-purple-400 fa-bounce mb-2 block"></i>
-                        Querying Google Gemini API to extract and formulate MCQs... Please wait.
-                    </td>
-                </tr>
-            `;
-            document.getElementById('btn-import-ai').classList.add('hidden');
+        // ─── VIEW QUESTIONS BY SUBJECT (persistent filter) ─────
+        async function viewSubjectQuestions(sid, name) {
+            // Update global filter state
+            currentSubjectFilter = sid;
+            currentSubjectName = name;
+            // Switch to manage tab
+            switchTab('manage', document.getElementById('tab-btn-manage'));
+            // Questions are loaded by switchTab -> loadQuestions(currentSubjectFilter)
+        }
 
-            try {
-                // Fetch CSRF access token for secure state-changing request
-                const csrfToken = getCookie('csrf_access_token');
-                
-                const response = await fetch(`${API_BASE}/admin/generate-mcqs`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-Token': csrfToken
-                    },
-                    body: formData
-                });
-
-                const data = await response.json();
-                generateBtn.disabled = false;
-                generateBtn.innerHTML = `<span>Generate MCQs</span> <i class="fas fa-magic"></i>`;
-
-                if (!response.ok) {
-                    alert(`Generation failed: ${data.msg}`);
-                    previewTbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-red-400">Error: ${data.msg}</td></tr>`;
-                    return;
-                }
-
-                generatedMCQs = data;
-                renderAIPreview();
-
-            } catch (err) {
-                generateBtn.disabled = false;
-                generateBtn.innerHTML = `<span>Generate MCQs</span> <i class="fas fa-magic"></i>`;
-                alert(`Network error during generation: ${err.message}`);
-                previewTbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-red-400">Network Error. Check server logs.</td></tr>`;
+        // ─── DELETE ALL QUESTIONS BY SUBJECT ─────────────────────
+        async function deleteAllSubjectQuestions(sid, name, count) {
+            if (count === 0) { alert('No questions to delete for "' + name + '".'); return; }
+            if (!confirm('Delete ALL ' + count + ' questions for subject "' + name + '"? Cannot be undone!')) return;
+            var res = await fetchAPI('/admin/mcqs/by-subject/' + sid, { method: 'DELETE' });
+            if (res.error) { showSubjectFeedback(res.msg, false); }
+            else {
+                showSubjectFeedback(res.msg, true);
+                await loadSubjectsTab();
+                await loadSubjects();
+                if (currentSubjectFilter == sid) { currentSubjectFilter = null; currentSubjectName = null; updateSubjectFilterUI(); }
+                await loadQuestions(currentSubjectFilter);
             }
         }
 
-        function renderAIPreview() {
-            const tbody = document.getElementById('ai-preview-tbody');
-            const importBtn = document.getElementById('btn-import-ai');
-
-            if (generatedMCQs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-gray-500">Provide input and generate questions to preview.</td></tr>`;
-                importBtn.classList.add('hidden');
-                return;
-            }
-
-            tbody.innerHTML = '';
-            importBtn.classList.remove('hidden');
-
-            generatedMCQs.forEach((q, idx) => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-white/5 hover:bg-white/5 text-slate-300 align-top";
-                tr.innerHTML = `
-                    <td class="py-3 px-2 font-medium max-w-sm sm:max-w-xs md:max-w-md">
-                        <div class="space-y-2">
-                            <textarea onchange="updateAIField(${idx}, 'question', this.value)" class="w-full bg-slate-950/40 border border-white/5 rounded px-2 py-1 font-bold text-slate-100 text-xs focus:border-purple-500/40 focus:outline-none" rows="2">${q.question}</textarea>
-                            <div class="grid grid-cols-2 gap-2 text-[10px]">
-                                <div class="flex items-center gap-1">
-                                    <span class="text-gray-500 font-bold">A:</span>
-                                    <input type="text" value="${q.option_a}" onchange="updateAIField(${idx}, 'option_a', this.value)" class="bg-slate-950/20 border border-white/5 rounded px-1.5 py-0.5 text-slate-300 w-full text-[10px] focus:border-purple-500/40 focus:outline-none">
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <span class="text-gray-500 font-bold">B:</span>
-                                    <input type="text" value="${q.option_b}" onchange="updateAIField(${idx}, 'option_b', this.value)" class="bg-slate-950/20 border border-white/5 rounded px-1.5 py-0.5 text-slate-300 w-full text-[10px] focus:border-purple-500/40 focus:outline-none">
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <span class="text-gray-500 font-bold">C:</span>
-                                    <input type="text" value="${q.option_c}" onchange="updateAIField(${idx}, 'option_c', this.value)" class="bg-slate-950/20 border border-white/5 rounded px-1.5 py-0.5 text-slate-300 w-full text-[10px] focus:border-purple-500/40 focus:outline-none">
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <span class="text-gray-500 font-bold">D:</span>
-                                    <input type="text" value="${q.option_d}" onchange="updateAIField(${idx}, 'option_d', this.value)" class="bg-slate-950/20 border border-white/5 rounded px-1.5 py-0.5 text-slate-300 w-full text-[10px] focus:border-purple-500/40 focus:outline-none">
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="py-3 px-2 text-center">
-                        <select onchange="updateAIField(${idx}, 'correct_answer', this.value)" class="bg-slate-950/40 border border-white/5 rounded px-1.5 py-1 font-bold text-emerald-400 text-xs focus:border-purple-500/40 focus:outline-none cursor-pointer">
-                            <option value="A" ${q.correct_answer === 'A' ? 'selected' : ''}>A</option>
-                            <option value="B" ${q.correct_answer === 'B' ? 'selected' : ''}>B</option>
-                            <option value="C" ${q.correct_answer === 'C' ? 'selected' : ''}>C</option>
-                            <option value="D" ${q.correct_answer === 'D' ? 'selected' : ''}>D</option>
-                        </select>
-                    </td>
-                    <td class="py-3 px-2 space-y-1.5">
-                        <input type="text" value="${q.category}" onchange="updateAIField(${idx}, 'category', this.value)" class="bg-slate-950/40 border border-white/5 rounded px-1.5 py-0.5 text-slate-300 text-[10px] w-full focus:border-purple-500/40 focus:outline-none">
-                        <select onchange="updateAIField(${idx}, 'difficulty', this.value)" class="bg-slate-950/40 border border-white/5 rounded px-1 py-0.5 text-slate-400 text-[10px] w-full focus:border-purple-500/40 focus:outline-none cursor-pointer">
-                            <option value="Easy" ${q.difficulty === 'Easy' ? 'selected' : ''}>Easy</option>
-                            <option value="Medium" ${q.difficulty === 'Medium' ? 'selected' : ''}>Medium</option>
-                            <option value="Hard" ${q.difficulty === 'Hard' ? 'selected' : ''}>Hard</option>
-                        </select>
-                    </td>
-                    <td class="py-3 px-2 text-center">
-                        <button onclick="removeAIQuestion(${idx})" class="px-2 py-1 rounded bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 font-bold text-[10px] cursor-pointer">
-                            <i class="fas fa-trash-alt"></i> Remove
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+        function editSubject(id, name, semester) {
+            document.getElementById('subject-form-title').textContent = 'Edit Subject #' + id;
+            document.getElementById('btn-cancel-subject-edit').classList.remove('hidden');
+            document.getElementById('btn-save-subject-label').textContent = 'Update Subject';
+            document.getElementById('edit-subject-id').value = id;
+            document.getElementById('subject-name-input').value = name;
+            document.getElementById('subject-sem-input').value = String(semester);
+            document.getElementById('subject-name-input').focus();
+            document.querySelector('#tab-content-subjects').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function updateAIField(idx, field, value) {
-            if (generatedMCQs[idx]) {
-                generatedMCQs[idx][field] = value.trim ? value.trim() : value;
+        function resetSubjectForm() {
+            document.getElementById('subject-form-title').textContent = 'Add New Subject';
+            document.getElementById('btn-cancel-subject-edit').classList.add('hidden');
+            document.getElementById('btn-save-subject-label').textContent = 'Add Subject';
+            document.getElementById('edit-subject-id').value = '';
+            document.getElementById('subject-name-input').value = '';
+            document.getElementById('subject-sem-input').value = '';
+            document.getElementById('subject-feedback').classList.add('hidden');
+        }
+
+        async function saveSubject() {
+            var editId = document.getElementById('edit-subject-id').value;
+            var name = document.getElementById('subject-name-input').value.trim();
+            var semester = document.getElementById('subject-sem-input').value;
+            if (!name || !semester) { showSubjectFeedback('Fill in both fields.', false); return; }
+            var btn = document.getElementById('btn-save-subject');
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> Saving...';
+            var res;
+            if (editId) { res = await fetchAPI('/admin/subjects/' + editId, { method: 'PUT', body: JSON.stringify({ name: name, semester: parseInt(semester) }) }); }
+            else { res = await fetchAPI('/admin/subjects', { method: 'POST', body: JSON.stringify({ name: name, semester: parseInt(semester) }) }); }
+            btn.disabled = false; btn.innerHTML = '<span id="btn-save-subject-label">' + (editId ? 'Update Subject' : 'Add Subject') + '</span><i class="fas fa-plus-circle text-xs"></i>';
+            if (res.error) { showSubjectFeedback(res.msg, false); }
+            else {
+                showSubjectFeedback(res.msg, true);
+                resetSubjectForm();
+                await loadSubjectsTab();
+                await loadSubjects();
             }
         }
 
-        function removeAIQuestion(idx) {
-            generatedMCQs.splice(idx, 1);
-            renderAIPreview();
+        async function deleteSubject(sid, name) {
+            if (!confirm('Delete subject "' + name + '"? Cannot be undone.')) return;
+            var res = await fetchAPI('/admin/subjects/' + sid, { method: 'DELETE' });
+            if (res.error) { showSubjectFeedback(res.msg, false); }
+            else {
+                showSubjectFeedback(res.msg, true);
+                await loadSubjectsTab();
+                await loadSubjects();
+                if (currentSubjectFilter == sid) { currentSubjectFilter = null; currentSubjectName = null; updateSubjectFilterUI(); }
+                await loadQuestions(currentSubjectFilter);
+            }
         }
 
-        async function saveGeneratedMCQs() {
-            if (generatedMCQs.length === 0) {
-                alert("No questions to import.");
-                return;
-            }
-
-            const confirmImport = confirm(`Are you sure you want to import these ${generatedMCQs.length} questions into the active MCQ database pool?`);
-            if (!confirmImport) return;
-
-            const importBtn = document.getElementById('btn-import-ai');
-            importBtn.disabled = true;
-            importBtn.innerHTML = `<span>Importing...</span> <i class="fas fa-spinner fa-spin"></i>`;
-
-            const res = await fetchAPI('/admin/import', {
-                method: 'POST',
-                body: JSON.stringify(generatedMCQs)
-            });
-
-            importBtn.disabled = false;
-            importBtn.innerHTML = `<span>Approve & Save to DB</span> <i class="fas fa-cloud-upload-alt text-xs"></i>`;
-
-            if (res.error) {
-                alert(`Failed to save questions: ${res.msg}`);
-                return;
-            }
-
-            alert(res.msg || "Successfully imported questions!");
-            
-            // Reset generator state
-            generatedMCQs = [];
-            document.getElementById('ai-text-input').value = '';
-            document.getElementById('ai-pdf-input').value = '';
-            renderAIPreview();
-            
-            // Reload main question directory
-            loadQuestions();
+        function showSubjectFeedback(msg, isSuccess) {
+            var el = document.getElementById('subject-feedback');
+            el.classList.remove('hidden');
+            el.className = 'text-xs rounded-xl px-3 py-2.5 font-semibold ' + (isSuccess ? 'bg-[#C3D809]/10 text-[#C3D809] border border-[#C3D809]/20' : 'bg-red-500/10 text-red-400 border border-red-500/20');
+            el.textContent = msg;
+            setTimeout(function() { el.classList.add('hidden'); }, 5000);
         }
+
     </script>
 </body>
 </html>

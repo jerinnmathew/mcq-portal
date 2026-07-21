@@ -14,38 +14,21 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: {
-                            blue: 'var(--primary-blue)',
-                            purple: 'var(--primary-purple)',
-                            dark: 'var(--primary-dark)',
+                        lime: {
+                            DEFAULT: '#C3D809',
+                            dark: '#a8bb07',
+                            light: '#d4eb1a',
                         },
-                        accent: {
-                            cyan: 'var(--accent-cyan)',
-                            green: 'var(--accent-green)',
-                            orange: 'var(--accent-orange)',
-                            red: 'var(--accent-red)',
-                        },
-                        gray: {
-                            50: 'var(--gray-50)',
-                            100: 'var(--gray-100)',
-                            200: 'var(--gray-200)',
-                            300: 'var(--gray-300)',
-                            400: 'var(--gray-400)',
-                            500: 'var(--gray-500)',
-                            600: 'var(--gray-600)',
-                            700: 'var(--gray-700)',
-                            800: 'var(--gray-800)',
-                            900: 'var(--gray-900)',
-                        },
-                        darkblue: {
-                            900: 'var(--bg-secondary)',
-                            800: 'var(--bg-primary)',
-                            700: 'var(--border-color)',
+                        dark: {
+                            base: '#222022',
+                            2: '#2d2b2d',
+                            3: '#383638',
+                            4: '#4a484a',
                         }
                     },
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
-                        display: ['"Outfit"', 'sans-serif'],
+                        sans: ['"Space Grotesk"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
+                        display: ['"Barlow Condensed"', '"Barlow"', 'sans-serif'],
                     }
                 }
             }
@@ -53,7 +36,7 @@
     </script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-darkblue-900 text-slate-100 min-h-screen bg-mesh flex flex-col">
+<body class="bg-[#222022] text-slate-100 min-h-screen bg-mesh flex flex-col">
 
     <!-- Header Navbar -->
     <header id="navbar-container" class="glass-panel sticky top-0 z-50 border-b border-white/5"></header>
@@ -65,30 +48,30 @@
         <div class="flex flex-col md:flex-row items-center justify-between gap-6 border-b border-white/5 pb-6">
             <div class="space-y-1 text-center md:text-left">
                 <h1 class="text-3xl font-extrabold tracking-tight font-display">
-                    <span class="text-blue-400">Leaderboard</span>
+                    <span class="text-[#C3D809]">Leaderboard</span>
                 </h1>
                 <p class="text-xs text-slate-400">Compete with peer students. Ranks update after every quiz grading.</p>
             </div>
 
             <!-- Tab Filter Buttons -->
-            <div class="flex p-1 bg-white rounded-xl border border-slate-200/50 shadow-sm" id="leaderboard-tabs">
-                <button onclick="loadLeaderboard('today', this)" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 transition-all cursor-pointer">
+            <div class="flex p-1 bg-[#2d2b2d] rounded-xl border border-[#C3D809]/15 shadow-sm" id="leaderboard-tabs">
+                <button onclick="loadLeaderboard('today', this)" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-[#C3D809] transition-all cursor-pointer">
                     TODAY
                 </button>
-                <button onclick="loadLeaderboard('weekly', this)" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 transition-all cursor-pointer">
+                <button onclick="loadLeaderboard('weekly', this)" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-[#C3D809] transition-all cursor-pointer">
                     WEEKLY
                 </button>
-                <button onclick="loadLeaderboard('all-time', this)" class="px-4 py-2 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-sm active-tab transition-all cursor-pointer">
+                <button onclick="loadLeaderboard('all-time', this)" class="px-4 py-2 rounded-lg text-xs font-bold text-[#111111] bg-[#C3D809] shadow-sm active-tab transition-all cursor-pointer">
                     ALL-TIME
                 </button>
             </div>
         </div>
 
         <!-- 3-Tier Podium showcase (Top 3) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end max-w-3xl mx-auto pt-6" id="podium-container">
+        <div class="grid grid-cols-3 gap-2 sm:gap-6 items-end max-w-3xl mx-auto pt-6" id="podium-container">
             
             <!-- 2nd Place Podium Column (Left) -->
-            <div class="order-2 md:order-1 flex flex-col items-center">
+            <div class="order-1 flex flex-col items-center">
                 <!-- Avatar box -->
                 <div class="relative mb-3 flex flex-col items-center">
                     <div class="h-16 w-16 rounded-2xl bg-gradient-to-tr from-slate-300 to-slate-400 flex items-center justify-center font-bold text-slate-900 text-xl shadow-lg ring-2 ring-slate-400/30" id="pod-2-avatar">
@@ -106,7 +89,7 @@
             </div>
 
             <!-- 1st Place Podium Column (Center) -->
-            <div class="order-1 md:order-2 flex flex-col items-center">
+            <div class="order-2 flex flex-col items-center">
                 <!-- Golden Crown icon -->
                 <i class="fas fa-crown text-yellow-400 text-2xl mb-2 animate-bounce"></i>
                 <!-- Avatar box -->
@@ -126,7 +109,7 @@
             </div>
 
             <!-- 3rd Place Podium Column (Right) -->
-            <div class="order-3 md:order-3 flex flex-col items-center">
+            <div class="order-3 flex flex-col items-center">
                 <!-- Avatar box -->
                 <div class="relative mb-3 flex flex-col items-center">
                     <div class="h-16 w-16 rounded-2xl bg-gradient-to-tr from-amber-600 to-amber-800 flex items-center justify-center font-bold text-slate-200 text-xl shadow-lg ring-2 ring-amber-700/30" id="pod-3-avatar">
@@ -145,32 +128,7 @@
 
         </div>
 
-        <!-- Scrollable Leaderboard Table (Ranks 4+) -->
-        <div class="glass-panel rounded-2xl p-6 border border-white/5 space-y-4">
-            <div class="border-b border-white/5 pb-3">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Top Students Directory</h3>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-slate-300">
-                    <thead class="text-xs text-slate-400 uppercase border-b border-white/5">
-                        <tr>
-                            <th class="py-3.5 px-4 text-center">Rank</th>
-                            <th class="py-3.5 px-4">Student</th>
-                            <th class="py-3.5 px-4">Badge</th>
-                            <th class="py-3.5 px-4">Active Streak</th>
-                            <th class="py-3.5 px-4">XP Points</th>
-                            <th class="py-3.5 px-4">Accuracy</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaderboard-tbody">
-                        <tr>
-                            <td colspan="6" class="py-8 text-center text-gray-400">Loading standings dataset...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        
 
     </main>
 
@@ -193,9 +151,9 @@
             // Adjust active class styles on tabs
             const tabs = document.querySelectorAll('#leaderboard-tabs button');
             tabs.forEach(t => {
-                t.className = "px-4 py-2 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 transition-all cursor-pointer";
+                t.className = "px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-[#C3D809] transition-all cursor-pointer";
             });
-            btnElement.className = "px-4 py-2 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 shadow-sm active-tab transition-all cursor-pointer";
+            btnElement.className = "px-4 py-2 rounded-lg text-xs font-bold text-[#111111] bg-[#C3D809] shadow-sm active-tab transition-all cursor-pointer";
 
             // Fetch
             const res = await fetchAPI(`/stats/leaderboard?filter=${filterScope}`);
@@ -208,7 +166,7 @@
         }
 
         function renderStandings(users) {
-            // 1. Reset Podiums default values
+            // Reset Podiums default values
             resetPodiumUI();
 
             // Populate Podiums (indices 0, 1, 2 in order)
@@ -221,53 +179,6 @@
             if (users.length >= 3) {
                 fillPodiumSpot(3, users[2]);
             }
-
-            // 2. Render remaining list in table
-            const tbody = document.getElementById('leaderboard-tbody');
-            
-            // Slice items from index 3 onwards
-            const listUsers = users.slice(3);
-
-            if (listUsers.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="py-6 text-center text-gray-500 text-xs">
-                            No remaining student ranks recorded for this period.
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = '';
-            listUsers.forEach((u, idx) => {
-                const tr = document.createElement('tr');
-                tr.className = 'border-b border-white/5 hover:bg-white/5 transition-all text-xs sm:text-sm';
-                
-                // Rank highlighting
-                const displayRank = u.rank || (idx + 4);
-
-                tr.innerHTML = `
-                    <td class="py-3.5 px-4 text-center font-bold text-slate-400">${displayRank}</td>
-                    <td class="py-3.5 px-4">
-                        <div class="flex items-center gap-2">
-                            <div class="h-6 w-6 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center font-bold text-[10px]">
-                                ${u.username[0].toUpperCase()}
-                            </div>
-                            <span class="font-semibold text-slate-200">${u.username}</span>
-                        </div>
-                    </td>
-                    <td class="py-3.5 px-4">
-                        <span class="px-2 py-0.5 rounded text-[9px] font-bold ${getBadgeStyleClass(u.badge)}">
-                            ${u.badge || 'Bronze'}
-                        </span>
-                    </td>
-                    <td class="py-3.5 px-4 text-slate-300 font-medium"><i class="fas fa-calendar-alt text-orange-400 mr-1"></i>${u.streak || 0} days</td>
-                    <td class="py-3.5 px-4 font-bold text-blue-400">${u.xp_points} XP</td>
-                    <td class="py-3.5 px-4 text-emerald-400 font-semibold">${u.accuracy.toFixed(1)}%</td>
-                `;
-                tbody.appendChild(tr);
-            });
         }
 
         function resetPodiumUI() {
@@ -333,3 +244,6 @@
     </script>
 </body>
 </html>
+
+
+

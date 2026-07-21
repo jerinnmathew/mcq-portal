@@ -10,20 +10,25 @@ quiz_bp = Blueprint('quiz', __name__)
 def get_questions():
     """Fetches a set of randomized MCQ questions. Excludes correct answers for security."""
     category = request.args.get('category')
-    difficulty = request.args.get('difficulty')
+    subject_id = request.args.get('subject_id', type=int)
     limit = request.args.get('limit', 10, type=int)
+    if limit is None:
+        limit = 10
+    limit = max(10, min(limit, 30))
 
     query = MCQ.query
 
-    if category and category != 'All':
+    if subject_id:
+        query = query.filter_by(subject_id=subject_id)
+    elif category and category != 'All':
         query = query.filter_by(category=category)
-    if difficulty and difficulty != 'All':
-        query = query.filter_by(difficulty=difficulty)
 
-    all_questions = query.all()
-    
-    # Randomize
-    selected = random.sample(all_questions, min(len(all_questions), limit))
+    all_questions = query.order_by(MCQ.id).all()
+
+    if len(all_questions) <= limit:
+        selected = all_questions
+    else:
+        selected = random.sample(all_questions, k=limit)
 
     # Serialize without correct_answer to prevent inspect-element cheating
     return jsonify([q.to_dict(include_correct=False) for q in selected]), 200
@@ -49,8 +54,31 @@ def submit_quiz():
 
     # Fetch corresponding MCQs from DB to calculate score securely
     mcq_ids = [int(qid) for qid in user_answers.keys()]
-    mcqs = MCQ.query.filter(MCQ.id.in_(mcq_ids)).all()
-    mcq_map = {m.id: m for m in mcqs}
+    mcq_rows = MCQ.query.filter(MCQ.id.in_(mcq_ids)).with_entities(
+        MCQ.id,
+        MCQ.question,
+        MCQ.option_a,
+        MCQ.option_b,
+        MCQ.option_c,
+        MCQ.option_d,
+        MCQ.correct_answer,
+        MCQ.category,
+        MCQ.subject_id
+    ).all()
+    mcq_map = {
+        row.id: {
+            "id": row.id,
+            "question": row.question,
+            "option_a": row.option_a,
+            "option_b": row.option_b,
+            "option_c": row.option_c,
+            "option_d": row.option_d,
+            "correct_answer": row.correct_answer,
+            "category": row.category,
+            "subject_id": row.subject_id,
+        }
+        for row in mcq_rows
+    }
 
     correct_count = 0
     total_questions = len(mcq_ids)
@@ -62,20 +90,20 @@ def submit_quiz():
             continue
         
         user_ans = user_answers.get(str(qid))
-        is_correct = (user_ans == mcq.correct_answer)
+        is_correct = (user_ans == mcq["correct_answer"])
         
         if is_correct:
             correct_count += 1
 
         breakdown.append({
-            "id": mcq.id,
-            "question": mcq.question,
-            "option_a": mcq.option_a,
-            "option_b": mcq.option_b,
-            "option_c": mcq.option_c,
-            "option_d": mcq.option_d,
+            "id": mcq["id"],
+            "question": mcq["question"],
+            "option_a": mcq["option_a"],
+            "option_b": mcq["option_b"],
+            "option_c": mcq["option_c"],
+            "option_d": mcq["option_d"],
             "user_answer": user_ans,
-            "correct_answer": mcq.correct_answer,
+            "correct_answer": mcq["correct_answer"],
             "is_correct": is_correct
         })
 
@@ -120,11 +148,14 @@ def submit_quiz():
         stats.average_score = ((stats.average_score * old_attempts) + correct_count) / new_attempts
 
         # Win Ratio (Total correct / Total attempted questions across all time)
-        # We can calculate this by taking the sum of scores / sum of questions.
-        # But we can approximate it or keep accurate count. Let's do it by loading all attempts.
-        all_attempts = Attempt.query.filter_by(user_id=user.id).all()
-        total_correct_all_time = sum(a.score for a in all_attempts) + correct_count
-        total_questions_all_time = sum(a.total_questions for a in all_attempts) + total_questions
+        # Use aggregate query instead of loading all rows into memory — much faster
+        from sqlalchemy import func
+        aggregates = db.session.query(
+            func.coalesce(func.sum(Attempt.score), 0),
+            func.coalesce(func.sum(Attempt.total_questions), 0)
+        ).filter(Attempt.user_id == user.id).first()
+        total_correct_all_time = (aggregates[0] or 0) + correct_count
+        total_questions_all_time = (aggregates[1] or 0) + total_questions
         
         stats.win_ratio = (total_correct_all_time / total_questions_all_time) * 100 if total_questions_all_time > 0 else 0.0
         stats.current_streak = new_streak
