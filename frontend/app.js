@@ -21,10 +21,13 @@ Theme.init();
 
 // --- Session & Storage Management ---
 const Auth = {
+    _sessionRestored: false,
+
     clearSession() {
         localStorage.removeItem('mcq_user');
         localStorage.removeItem('current_quiz_questions');
         localStorage.removeItem('last_quiz_results');
+        this._sessionRestored = false;
     },
     
     saveUser(user) {
@@ -37,7 +40,46 @@ const Auth = {
     },
     
     isAuthenticated() {
-        return !!this.getUser();
+        // First check localStorage (fast path for already-hydrated sessions)
+        if (!!this.getUser()) return true;
+        // If session restoration already ran and found nothing, don't re-check
+        return false;
+    },
+
+    /**
+     * Try to restore a server-side session (via HttpOnly cookies) into localStorage.
+     * This handles the case where the SSO redirect set cookies but the client has no
+     * cached user data yet. Call this early on every page that needs auth state.
+     * 
+     * Returns: Promise<boolean> — true if session was restored successfully
+     */
+    async tryRestoreSession() {
+        // If we already have cached user data, no need to restore
+        if (this.getUser()) {
+            this._sessionRestored = true;
+            return true;
+        }
+
+        // If no session cookie exists, skip API call
+        if (!getCookie('session_token')) {
+            this._sessionRestored = true;
+            return false;
+        }
+
+        try {
+            const data = await fetchAPI('/stats/dashboard');
+            if (!data.error && data.user) {
+                this.saveUser(data.user);
+                this._sessionRestored = true;
+                console.log('Session restored for:', data.user.username);
+                return true;
+            }
+        } catch (e) {
+            console.warn('Session restoration failed:', e);
+        }
+
+        this._sessionRestored = true;
+        return false;
     },
 
     logout() {
@@ -254,6 +296,11 @@ async function initLandingProfile() {
     const loggedInEl = document.getElementById('profile-logged-in');
     const loggedOutEl = document.getElementById('profile-logged-out');
     if (!loggedInEl || !loggedOutEl) return;
+
+    // Try to restore session from server-side HttpOnly cookies first.
+    // This handles the case where SSO just redirected and set cookies,
+    // but localStorage has no cached user yet.
+    await Auth.tryRestoreSession();
 
     if (!Auth.isAuthenticated()) {
         loggedInEl.classList.add('hidden');
