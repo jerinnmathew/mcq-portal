@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, current_app, request, jsonify
 from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies
 from backend.models import db, User, Stats
 from backend.utils.helpers import login_required
