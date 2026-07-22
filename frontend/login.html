@@ -75,34 +75,61 @@
                 </div>
             </div>
 
-            <!-- Default SSO Login Card (hidden when processing SSO) -->
-            <div id="sso-login-card" class="space-y-6">
-                <div class="text-center space-y-2">
-                    <div class="inline-flex h-12 w-12 rounded-2xl bg-[#C3D809]/10 text-[#C3D809] border border-[#C3D809]/25 items-center justify-center mb-2">
-                        <i class="fas fa-lock text-xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-extrabold font-display">SSO Login</h2>
-                    <p class="text-xs text-slate-400">Use your padikkunnundo.app account to continue.</p>
-                </div>
-
-                <!-- Error Notification Panel -->
-                <div id="error-box" class="hidden p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-400 flex items-center gap-2">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span id="error-message"></span>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="rounded-xl border border-[#C3D809]/20 bg-[#C3D809]/10 p-4 text-sm text-slate-300">
-                        <p class="font-semibold text-[#C3D809] mb-2">This site uses single sign-on only.</p>
-                        <p>Sign in through your padikkunnundo.app account to access the MCQ portal.</p>
+                <!-- Default SSO Login Card (hidden when processing SSO) -->
+                <div id="sso-login-card" class="space-y-6">
+                    <div class="text-center space-y-2">
+                        <div class="inline-flex h-12 w-12 rounded-2xl bg-[#C3D809]/10 text-[#C3D809] border border-[#C3D809]/25 items-center justify-center mb-2">
+                            <i class="fas fa-lock text-xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-extrabold font-display">SSO Login</h2>
+                        <p class="text-xs text-slate-400">Use your padikkunnundo.app account to continue.</p>
                     </div>
 
-                    <a href="https://padikkunnundo.app" id="btn-submit" class="w-full py-3 rounded-xl font-bold bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111111] shadow-lg shadow-[#C3D809]/20 font-bold transform hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2 cursor-pointer">
-                        <span>Go to padikkunnundo.app</span>
-                        <i class="fas fa-arrow-right text-sm"></i>
-                    </a>
+                    <!-- Error Notification Panel -->
+                    <div id="error-box" class="hidden p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-400 flex items-center gap-2">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span id="error-message"></span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="rounded-xl border border-[#C3D809]/20 bg-[#C3D809]/10 p-4 text-sm text-slate-300">
+                            <p class="font-semibold text-[#C3D809] mb-2">This site uses single sign-on only.</p>
+                            <p>Sign in through your padikkunnundo.app account to access the MCQ portal.</p>
+                        </div>
+
+                        <a href="https://padikkunnundo.app" id="btn-submit" class="w-full py-3 rounded-xl font-bold bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111111] shadow-lg shadow-[#C3D809]/20 font-bold transform hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2 cursor-pointer">
+                            <span>Go to padikkunnundo.app</span>
+                            <i class="fas fa-arrow-right text-sm"></i>
+                        </a>
+                    </div>
+
+                    <!-- Separator -->
+                    <div class="relative my-2">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-white/10"></div>
+                        </div>
+                        <div class="relative flex justify-center text-xs">
+                            <span class="bg-[#2d2b2d] px-3 text-slate-500">or</span>
+                        </div>
+                    </div>
+
+                    <!-- Demo Login Card -->
+                    <div class="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm space-y-3">
+                        <div class="flex items-center gap-2">
+                            <div class="inline-flex h-8 w-8 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/25 items-center justify-center">
+                                <i class="fas fa-flask text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-amber-400">Demo Mode</p>
+                                <p class="text-xs text-slate-400">No account needed. Practice Semester 1 subjects.</p>
+                            </div>
+                        </div>
+                        <button id="btn-demo-login-page" class="w-full py-2.5 rounded-xl font-bold bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 hover:text-amber-300 transition-all text-center text-sm cursor-pointer flex items-center justify-center gap-2">
+                            <i class="fas fa-flask text-xs"></i>
+                            <span>Continue as Demo Student</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
         </div>
 
@@ -159,6 +186,26 @@
 
         redirectIfLoggedIn();
         showErrorFromQuery();
+
+        // Demo login handler
+        const demoBtn = document.getElementById('btn-demo-login-page');
+        if (demoBtn) {
+            demoBtn.addEventListener('click', async function() {
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-pulse text-xs"></i> Logging in...';
+                const res = await fetchAPI('/auth/demo-login', { method: 'POST' });
+                if (res.error) {
+                    alert('Demo login failed: ' + res.msg);
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-flask text-xs"></i><span>Continue as Demo Student</span>';
+                    return;
+                }
+                if (res.user) {
+                    Auth.saveUser(res.user);
+                }
+                window.location.href = res.redirect || '/dashboard';
+            });
+        }
     </script>
 </body>
 </html>

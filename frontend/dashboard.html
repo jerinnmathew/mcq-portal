@@ -90,6 +90,19 @@
     <!-- Header Navbar -->
     <header id="navbar-container" class="glass-panel sticky top-0 z-50 border-b border-white/5"></header>
 
+    <!-- Demo Mode Banner -->
+    <div id="demo-banner" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 w-full">
+        <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-3 flex items-center gap-3">
+            <div class="h-8 w-8 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/25 items-center justify-center flex shrink-0">
+                <i class="fas fa-flask text-sm"></i>
+            </div>
+            <div class="text-xs text-amber-300/90">
+                <span class="font-bold text-amber-400">Demo Mode</span> — You are using Semester 1 subjects only. 
+                <a href="login.html" class="underline font-semibold hover:text-amber-300 transition-colors">Sign in with SSO</a> for full access.
+            </div>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-5">
 
@@ -361,6 +374,31 @@
             }
         }
 
+        function applyDemoMode() {
+            const isDemo = Auth.isDemo();
+            const demoBanner = document.getElementById('demo-banner');
+            if (demoBanner) {
+                if (isDemo) demoBanner.classList.remove('hidden');
+                else demoBanner.classList.add('hidden');
+            }
+            // For demo users, lock semester to 1 and disable other options
+            const semSelect = document.getElementById('semester-select');
+            if (isDemo && semSelect) {
+                // Remove all options except Semester 1
+                for (let i = semSelect.options.length - 1; i >= 0; i--) {
+                    if (semSelect.options[i].value !== '1') {
+                        semSelect.remove(i);
+                    }
+                }
+                semSelect.value = '1';
+                semSelect.disabled = true;
+                semSelect.classList.add('opacity-60', 'cursor-not-allowed');
+                // Trigger subject filter
+                renderSubjectOptions();
+                updateStartButtonState();
+            }
+        }
+
         async function loadDashboard() {
             const data = await fetchAPI('/stats/dashboard');
             if (data.error) { console.error("Dashboard load failed:", data.msg); return; }
@@ -371,6 +409,9 @@
 
             Auth.saveUser(user);
             renderNavbar();
+
+            // ── Apply demo mode restrictions ──
+            applyDemoMode();
 
             // ── Compact top bar ──
             document.getElementById('welcome-username').innerText = user.username;

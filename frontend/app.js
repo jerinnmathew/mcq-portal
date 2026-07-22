@@ -20,8 +20,20 @@ const Theme = {
 Theme.init();
 
 // --- Session & Storage Management ---
+const DEMO_USERNAME = 'demo_student';
+
+function isDemoUser(user) {
+    return user && user.username === DEMO_USERNAME;
+}
+window.isDemoUser = isDemoUser;
+
 const Auth = {
     _sessionRestored: false,
+
+    isDemo() {
+        const user = this.getUser();
+        return isDemoUser(user);
+    },
 
     clearSession() {
         localStorage.removeItem('mcq_user');
@@ -199,7 +211,10 @@ function renderNavbar() {
 
                 <!-- Desktop Navigation (md and up) -->
                 <div class="hidden md:flex items-center gap-3 ml-auto">
-                    ${isLoggedIn && user ? `
+            ${isLoggedIn && user ? `
+                        ${isDemoUser(user) ? `
+                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 mr-1">DEMO</span>
+                        ` : ''}
                         <div class="flex items-center gap-3">
                             <div class="hidden md:flex flex-col text-right">
                                 <span class="text-[10px] text-white/70 leading-none mb-1">Streak: ${user.streak || 0}</span>

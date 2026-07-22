@@ -69,6 +69,50 @@ def get_profile(user):
     }), 200
 
 
+@auth_bp.route('/demo-login', methods=['POST'])
+def demo_login():
+    """Demo login — no SSO required. Logs in as the demo_student user for Semester 1 practice."""
+    from backend.models import User, Stats
+    from flask_jwt_extended import create_access_token, set_access_cookies
+    import jwt as pyjwt
+    from datetime import datetime, timedelta, timezone
+
+    demo = User.query.filter_by(username='demo_student').first()
+    if not demo:
+        return jsonify({"msg": "Demo user not found. Please contact the administrator."}), 500
+
+    # Generate JWT access token
+    access_token = create_access_token(identity=str(demo.id))
+
+    # Generate session token cookie
+    session_token = pyjwt.encode(
+        {
+            "sub": str(demo.id),
+            "exp": datetime.utcnow() + timedelta(days=30),
+        },
+        current_app.config["SECRET_KEY"],
+        algorithm="HS256",
+    )
+    if isinstance(session_token, bytes):
+        session_token = session_token.decode("utf-8")
+
+    response = jsonify({
+        "msg": "Demo login successful",
+        "redirect": "/dashboard",
+        "user": demo.to_dict()
+    })
+    set_access_cookies(response, access_token)
+    response.set_cookie(
+        "session_token",
+        session_token,
+        max_age=30 * 24 * 3600,
+        httponly=True,
+        samesite="Lax",
+        secure=not current_app.debug,
+    )
+    return response, 200
+
+
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
     """Logs out user by clearing the secure HttpOnly JWT cookies."""

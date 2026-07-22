@@ -85,6 +85,9 @@
                     <a href="login.html" class="px-6 py-3.5 rounded-xl font-bold bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111111] shadow-lg shadow-[#C3D809]/20 hover:shadow-[#C3D809]/30 transform hover:-translate-y-0.5 transition-all text-center">
                         Continue with SSO <i class="fas fa-arrow-right ml-2 text-sm"></i>
                     </a>
+                    <button id="btn-demo-login" class="px-6 py-3.5 rounded-xl font-bold bg-white/5 hover:bg-white/10 border border-amber-500/30 text-amber-400 hover:text-amber-300 shadow-lg hover:shadow-amber-500/10 transform hover:-translate-y-0.5 transition-all text-center cursor-pointer">
+                        <i class="fas fa-flask mr-2 text-sm"></i>Try Demo (Sem 1)
+                    </button>
                     <a href="leaderboard.html" id="btn-view-standings" class="px-6 py-3.5 rounded-xl font-bold transition-all text-center">
                         View Standings
                     </a>
@@ -223,6 +226,26 @@
             setTimeout(() => {
                 animateValue('stat-categories', 0, 10, 1200, "+");
             }, 300); // Small delay for visual entry
+
+            // Demo login button handler
+            const demoBtn = document.getElementById('btn-demo-login');
+            if (demoBtn) {
+                demoBtn.addEventListener('click', async function() {
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-pulse mr-2"></i>Loading...';
+                    const res = await fetchAPI('/auth/demo-login', { method: 'POST' });
+                    if (res.error) {
+                        alert('Demo login failed: ' + res.msg);
+                        this.disabled = false;
+                        this.innerHTML = '<i class="fas fa-flask mr-2 text-sm"></i>Try Demo (Sem 1)';
+                        return;
+                    }
+                    if (res.user) {
+                        Auth.saveUser(res.user);
+                    }
+                    window.location.href = res.redirect || '/dashboard';
+                });
+            }
         });
     </script>
 </body>
