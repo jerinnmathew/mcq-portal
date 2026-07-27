@@ -108,11 +108,11 @@
 
                 <!-- Navigation Controls -->
                 <div class="flex items-center justify-between border-t border-white/5 pt-4 mt-6">
-                    <button id="btn-prev" class="px-4 py-2 rounded-xl font-bold bg-white/5 border border-white/10 hover:bg-white/10 text-slate-200 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-xs">
-                        <i class="fas fa-arrow-left text-xs"></i> Previous
+                    <button id="btn-end-quiz" type="button" class="px-4 py-2 rounded-xl font-bold bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-400 transition-all flex items-center gap-2 cursor-pointer text-xs">
+                        <i class="fas fa-flag-checkered text-xs"></i> End Quiz
                     </button>
 
-                    <button id="btn-next" class="px-5 py-2 rounded-xl font-bold bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111111] shadow-lg shadow-[#C3D809]/20 transition-all flex items-center gap-2 cursor-pointer text-xs">
+                    <button id="btn-next" class="px-5 py-2 rounded-xl font-bold bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111111] shadow-lg shadow-[#C3D809]/20 transition-all flex items-center gap-2 cursor-pointer text-xs disabled:opacity-30 disabled:cursor-not-allowed">
                         Next <i class="fas fa-arrow-right text-xs"></i>
                     </button>
                 </div>
@@ -193,7 +193,7 @@
             showQuestion(0);
 
             // Hook listeners
-            document.getElementById('btn-prev').addEventListener('click', prevQuestion);
+            document.getElementById('btn-end-quiz').addEventListener('click', endQuizEarly);
             document.getElementById('btn-next').addEventListener('click', nextQuestionOrSubmit);
         });
 
@@ -258,20 +258,10 @@
             grid.innerHTML = '';
 
             questions.forEach((_, idx) => {
-                const btn = document.createElement('button');
+                const btn = document.createElement('div');
                 btn.id = `crumb-btn-${idx}`;
-                btn.type = 'button';
-                btn.className = 'py-2 rounded-xl text-xs font-bold border border-white/5 bg-slate-900/40 text-gray-400 transition-all hover:bg-white/5 cursor-pointer';
+                btn.className = 'py-2 rounded-xl text-xs font-bold border border-white/5 bg-slate-900/40 text-gray-400 text-center select-none cursor-default';
                 btn.innerText = idx + 1;
-                btn.addEventListener('click', () => {
-                    // Allow navigation only if the current question is answered
-                    if (!answers[questions[currentIndex].id]) {
-                        alert("Please select an option for the current question before navigating to another question.");
-                        return;
-                    }
-                    saveCurrentDraft();
-                    showQuestion(idx);
-                });
                 grid.appendChild(btn);
             });
             updateBreadcrumbStyles();
@@ -286,20 +276,20 @@
                 const isSkipped = skippedQuestions.has(q.id);
 
                 // Base style reset
-                btn.className = 'py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center';
+                btn.className = 'py-2 rounded-xl text-xs font-bold border text-center select-none cursor-default';
 
                 if (idx === currentIndex) {
                     // Active question
                     btn.classList.add('bg-[#C3D809]/20', 'border-[#C3D809]', 'text-[#C3D809]', 'glow-active');
                 } else if (hasAnswer) {
-                    // Visited and answered
+                    // Answered
                     btn.classList.add('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400');
                 } else if (isSkipped) {
                     // Skipped by timer
                     btn.classList.add('bg-red-500/10', 'border-red-500/30', 'text-red-400');
                 } else {
-                    // Unanswered
-                    btn.classList.add('bg-slate-900/40', 'border-white/5', 'text-gray-400', 'hover:bg-white/5');
+                    // Unanswered / Upcoming
+                    btn.classList.add('bg-slate-900/40', 'border-white/5', 'text-gray-400');
                 }
             });
 
@@ -356,12 +346,7 @@
             });
 
             // Navigation Button controls
-            const prevBtn = document.getElementById('btn-prev');
             const nextBtn = document.getElementById('btn-next');
-
-            // Previous navigation allowed but disabled on first question or if unanswered
-            prevBtn.disabled = (currentIndex === 0) || !answers[q.id];
-            prevBtn.style.display = (currentIndex === 0) ? 'none' : '';
 
             if (currentIndex === questions.length - 1) {
                 nextBtn.innerHTML = `<span>Submit Quiz</span> <i class="fas fa-check-circle text-xs"></i>`;
@@ -461,8 +446,7 @@
                 }
             });
 
-            // Enable navigation buttons
-            document.getElementById('btn-prev').disabled = (currentIndex === 0);
+            // Enable next button
             document.getElementById('btn-next').disabled = false;
 
             updateBreadcrumbStyles();
@@ -472,13 +456,12 @@
             // Choice already saved in global 'answers' object, which is persistent across session
         }
 
-        function prevQuestion() {
-            if (!answers[questions[currentIndex].id]) {
-                return; // Block
-            }
-            if (currentIndex > 0) {
-                saveCurrentDraft();
-                showQuestion(currentIndex - 1);
+        function endQuizEarly() {
+            const answeredCount = Object.keys(answers).length;
+            const total = questions.length;
+            const proceed = confirm(`End quiz now with ${answeredCount} of ${total} answered questions? You will be able to verify your answers immediately.`);
+            if (proceed) {
+                executeSubmit();
             }
         }
 

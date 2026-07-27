@@ -82,18 +82,15 @@
                 </p>
                 
                 <div class="flex flex-wrap gap-4 pt-2">
+                    <a href="dashboard.html" id="btn-hero-start-quiz" class="px-6 py-3.5 rounded-xl font-extrabold bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111111] shadow-lg shadow-[#C3D809]/20 hover:shadow-[#C3D809]/30 transform hover:-translate-y-0.5 transition-all text-center flex items-center justify-center gap-2">
+                        <i class="fas fa-play text-xs"></i> Start Quiz
+                    </a>
                     <button id="btn-demo-login" class="px-6 py-3.5 rounded-xl font-bold bg-white/5 hover:bg-white/10 border border-amber-500/30 text-amber-400 hover:text-amber-300 shadow-lg hover:shadow-amber-500/10 transform hover:-translate-y-0.5 transition-all text-center cursor-pointer">
                         <i class="fas fa-flask mr-2 text-sm"></i>Try Demo (Sem 1)
                     </button>
                     <a href="leaderboard.html" id="btn-view-standings" class="px-6 py-3.5 rounded-xl font-bold transition-all text-center">
                         View Standings
                     </a>
-                </div>
-
-                <!-- SSO info notice -->
-                <div class="flex items-center gap-2 mt-1 text-xs text-slate-500">
-                    <i class="fas fa-info-circle text-slate-600"></i>
-                    Access via <a href="https://padikkunnundo.app" class="text-[#C3D809]/70 hover:text-[#C3D809] underline underline-offset-2 transition-colors">padikkunnundo.app</a> to sign in automatically.
                 </div>
 
                 <!-- Stats Snippet -->
@@ -121,85 +118,20 @@
                 <div class="absolute -bottom-10 -right-10 h-72 w-72 bg-indigo-500/10 rounded-full blur-3xl"></div>
 
                 <div id="battle-arena-card" class="w-full max-w-md relative z-10">
-                    
-                    <!-- Authenticated Profile View (Hidden by default) -->
-                    <div id="profile-logged-in" class="space-y-6 hidden p-6 glass-card rounded-2xl glow-active">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-semibold text-gray-400 tracking-wider">STUDENT PROFILE</span>
-                            <span id="student-badge" class="px-2 py-0.5 rounded text-[10px] font-bold"></span>
-                        </div>
-
-                        <!-- User Meta details -->
-                        <div class="flex items-center gap-4">
-                            <div id="student-avatar" class="h-12 w-12 rounded-xl flex items-center justify-center font-bold text-slate-900 text-lg shadow-lg">
-                                
-                            </div>
-                            <div>
-                                <h3 id="student-name" class="text-lg font-bold text-slate-100"></h3>
-                                <span id="student-streak" class="text-xs text-slate-400"></span>
-                            </div>
-                        </div>
-
-                        <!-- Quick stats board -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="p-3 bg-white/5 rounded-xl border border-white/5">
-                                <span class="text-xs text-gray-400 block mb-1">Total Score</span>
-                                <span id="student-score" class="text-lg font-bold text-blue-400">0 XP</span>
-                            </div>
-                            <div class="p-3 bg-white/5 rounded-xl border border-white/5">
-                                <span class="text-xs text-gray-400 block mb-1">Accuracy</span>
-                                <span id="student-accuracy" class="text-lg font-bold text-emerald-400">0.0%</span>
-                            </div>
-                        </div>
-
-                        <!-- Progress meters -->
-                        <div class="space-y-2">
-                            <div class="flex justify-between text-xs">
-                                <span id="student-next-level" class="text-gray-400">Next Level</span>
-                                <span id="student-xp-progress" class="text-blue-400 font-semibold">0 / 0 XP</span>
-                            </div>
-                            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
-                                <div id="student-progress-bar" class="bg-[#C3D809] h-full rounded-full" style="width: 0%"></div>
-                            </div>
-                        </div>
-
-                        <!-- Action items/Dashboard shortcut -->
-                        <div class="pt-2 border-t border-white/5 space-y-2">
-                            <a href="/dashboard" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-extrabold text-sm tracking-widest uppercase bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111111] shadow-lg shadow-[#C3D809]/20 transform hover:-translate-y-0.5 transition-all">
-                                <i class="fas fa-play text-xs"></i> Start Quiz
-                            </a>
-                            <div class="flex items-center justify-between text-[11px]">
-                                <div class="text-gray-400 flex items-center gap-2">
-                                    <i class="fas fa-check-circle text-emerald-500"></i> Platform Sync Active
-                                </div>
-                                <a href="/dashboard" class="text-blue-400 font-bold hover:text-blue-300 transition-colors flex items-center gap-1">
-                                    Dashboard <i class="fas fa-arrow-right text-[10px]"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Guest Profile/Call-to-Action View (Visible by default) -->
-                    <div id="profile-logged-out" class="w-full max-w-full overflow-hidden rounded-2xl bg-[#2d2b2d] border border-white/5 shadow-md flex flex-col">
+                    <!-- Home Image & Start Quiz Card -->
+                    <div class="w-full overflow-hidden rounded-2xl bg-[#2d2b2d] border border-white/5 shadow-md flex flex-col">
                         <!-- Image Container -->
                         <div class="w-full overflow-hidden rounded-t-2xl bg-[#222022]">
                             <img src="assets/exam_meme.png" alt="Exam Meme" class="w-full h-auto object-cover">
                         </div>
 
-                        <!-- SSO info panel -->
-                        <div class="p-5 bg-[#2d2b2d] border-t border-white/5 space-y-3">
-                            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#C3D809]/5 border border-[#C3D809]/15">
-                                <div class="h-8 w-8 rounded-lg bg-[#C3D809]/10 border border-[#C3D809]/20 flex items-center justify-center shrink-0">
-                                    <i class="fas fa-bolt text-[#C3D809] text-xs"></i>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-semibold text-[#C3D809]">Automatic SSO Login</p>
-                                    <p class="text-[11px] text-slate-400 mt-0.5">Open this portal from <a href="https://padikkunnundo.app" class="underline underline-offset-2 hover:text-slate-300 transition-colors">padikkunnundo.app</a> to sign in instantly.</p>
-                                </div>
-                            </div>
+                        <!-- Card Action Container -->
+                        <div class="grid grid-cols-1 gap-3 p-5 bg-[#2d2b2d] border-t border-white/5">
+                            <a href="dashboard.html" class="py-3 rounded-xl font-extrabold bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111111] shadow-lg shadow-[#C3D809]/20 font-bold transition-all text-center text-sm cursor-pointer flex items-center justify-center gap-2 uppercase tracking-wider">
+                                <i class="fas fa-play text-xs"></i> Start Quiz
+                            </a>
                         </div>
                     </div>
-
                 </div>
             </div>
 

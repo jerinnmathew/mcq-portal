@@ -223,10 +223,10 @@ function renderNavbar() {
                         <div class="flex items-center gap-3">
                             <div class="hidden md:flex flex-col text-right">
                                 <span class="text-[10px] text-white/70 leading-none mb-1">Streak: ${user.streak || 0}</span>
-                                <span class="text-xs font-semibold text-white leading-none">${user.username}</span>
+                                <span class="text-xs font-semibold text-white leading-none">${(user.name && user.name.trim()) ? user.name.trim() : user.username}</span>
                             </div>
                             <div class="h-8 w-8 rounded-full ${getBadgeClass(user.badge)} flex items-center justify-center font-bold text-white text-xs ring-2 ring-white/10">
-                                ${user.username[0].toUpperCase()}
+                                ${((user.name && user.name.trim()) ? user.name.trim() : user.username)[0].toUpperCase()}
                             </div>
                             <button onclick="Auth.logout()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-white transition-all cursor-pointer">
                                 <i class="fas fa-sign-out-alt text-xs"></i> <span class="hidden sm:inline">Logout</span>
@@ -244,8 +244,9 @@ function renderNavbar() {
                 <!-- Mobile Right Section (below md) -->
                 <div class="flex md:hidden items-center gap-1.5 ml-auto">
                     ${isLoggedIn && user ? `
-                        <div class="h-7 w-7 rounded-full ${getBadgeClass(user.badge)} flex items-center justify-center font-bold text-white text-[10px] ring-2 ring-white/10">
-                            ${user.username[0].toUpperCase()}
+                        <span class="text-xs font-semibold text-white truncate max-w-[120px]">${(user.name && user.name.trim()) ? user.name.trim() : user.username}</span>
+                        <div class="h-7 w-7 rounded-full ${getBadgeClass(user.badge)} flex items-center justify-center font-bold text-white text-[10px] ring-2 ring-white/10 shrink-0">
+                            ${((user.name && user.name.trim()) ? user.name.trim() : user.username)[0].toUpperCase()}
                         </div>
                         <button onclick="Auth.logout()" class="p-1.5 rounded-lg text-xs bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-white transition-all cursor-pointer" title="Logout">
                             <i class="fas fa-sign-out-alt text-xs"></i>
@@ -311,38 +312,12 @@ function formatDate(isoString) {
     });
 }
 
-// --- Landing Page Dynamic Profile Controller ---
+// --- Landing Page Controller ---
 async function initLandingProfile() {
-    const loggedInEl = document.getElementById('profile-logged-in');
-    const loggedOutEl = document.getElementById('profile-logged-out');
-    if (!loggedInEl || !loggedOutEl) return;
-
-    // Try to restore session from server-side HttpOnly cookies first.
-    // This handles the case where SSO just redirected and set cookies,
-    // but localStorage has no cached user yet.
-    await Auth.tryRestoreSession();
-
-    if (!Auth.isAuthenticated()) {
-        loggedInEl.classList.add('hidden');
-        loggedOutEl.classList.remove('hidden');
-        return;
-    }
-
-    // Is logged in: Show the profile panel
-    loggedInEl.classList.remove('hidden');
-    loggedOutEl.classList.add('hidden');
-
-    const cachedUser = Auth.getUser();
-    if (cachedUser) {
-        // First-pass instant render using cached data
-        updateProfileFields(cachedUser, { win_ratio: 0.0 });
-    }
-
-    // Asynchronously fetch fresh stats and user details from backend
-    const data = await fetchAPI('/stats/dashboard');
-    if (!data.error && data.user && data.stats) {
-        Auth.saveUser(data.user); // update storage cache
-        updateProfileFields(data.user, data.stats);
+    // Try to restore session from server-side cookies if needed
+    const restored = await Auth.tryRestoreSession();
+    if (restored) {
+        renderNavbar();
     }
 }
 
