@@ -52,9 +52,11 @@ const Auth = {
     },
     
     isAuthenticated() {
-        // First check localStorage (fast path for already-hydrated sessions)
+        // Fast path: localStorage already has user data
         if (!!this.getUser()) return true;
-        // If session restoration already ran and found nothing, don't re-check
+        // Secondary: csrf_access_token is a JS-readable non-httponly cookie set by
+        // Flask-JWT-Extended — its presence means a valid JWT session cookie exists.
+        if (getCookie('csrf_access_token')) return true;
         return false;
     },
 
@@ -72,8 +74,11 @@ const Auth = {
             return true;
         }
 
-        // If no session cookie exists, skip API call
-        if (!getCookie('session_token')) {
+        // Check for the CSRF token cookie — this is the JS-readable indicator that a valid
+        // JWT session exists. Flask-JWT-Extended sets 'csrf_access_token' as a NON-httponly
+        // cookie alongside the httponly 'access_token_cookie'. We cannot read 'session_token'
+        // or 'access_token_cookie' from JS because they are HttpOnly by browser security design.
+        if (!getCookie('csrf_access_token')) {
             this._sessionRestored = true;
             return false;
         }
