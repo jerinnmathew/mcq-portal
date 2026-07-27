@@ -414,12 +414,14 @@
             applyDemoMode();
 
             // ── Compact top bar ──
-            document.getElementById('welcome-username').innerText = user.username;
+            // Show real name from padikkunnundo; fall back to username
+            const displayName = (user.name && user.name.trim()) ? user.name.trim() : user.username;
+            document.getElementById('welcome-username').innerText = displayName;
             document.getElementById('streak-days').innerText = `${user.streak || 0} Day Streak`;
 
             // Avatar
             const avatar = document.getElementById('dash-avatar');
-            avatar.textContent = user.username[0].toUpperCase();
+            avatar.textContent = displayName[0].toUpperCase();
             const badgeClass = getBadgeClass(user.badge || 'Bronze');
             avatar.className = `h-9 w-9 rounded-xl flex items-center justify-center font-bold text-sm ${badgeClass}`;
 

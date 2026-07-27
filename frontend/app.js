@@ -342,10 +342,13 @@ async function initLandingProfile() {
 }
 
 function updateProfileFields(user, stats) {
+    // Display name: prefer the real name from padikkunnundo, fall back to username
+    const displayName = (user.name && user.name.trim()) ? user.name.trim() : (user.username || 'Student');
+
     // 1. Avatar letter & colors
     const avatar = document.getElementById('student-avatar');
     if (avatar) {
-        avatar.innerText = user.username ? user.username[0].toUpperCase() : 'S';
+        avatar.innerText = displayName[0].toUpperCase();
         // Dynamically match badge style class
         const badge = user.badge || 'Bronze';
         const badgeClass = getBadgeClass(badge);
@@ -354,9 +357,9 @@ function updateProfileFields(user, stats) {
         avatar.className = `h-12 w-12 rounded-xl flex items-center justify-center font-bold ${textClass} text-lg shadow-lg ring-1 ring-white/10 ${badgeClass}`;
     }
 
-    // 2. Username & Streak
+    // 2. Name & Streak — show real name from padikkunnundo
     const nameEl = document.getElementById('student-name');
-    if (nameEl) nameEl.innerText = user.username || 'Student';
+    if (nameEl) nameEl.innerText = displayName;
 
     const streakEl = document.getElementById('student-streak');
     if (streakEl) streakEl.innerText = `Current Streak: ${user.streak || 0} Days`;
