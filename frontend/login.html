@@ -102,33 +102,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Separator -->
-                    <div class="relative my-2">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-white/10"></div>
-                        </div>
-                        <div class="relative flex justify-center text-xs">
-                            <span class="bg-[#2d2b2d] px-3 text-slate-500">or</span>
-                        </div>
-                    </div>
-
-                    <!-- Demo Login Card -->
-                    <div class="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm space-y-3">
-                        <div class="flex items-center gap-2">
-                            <div class="inline-flex h-8 w-8 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/25 items-center justify-center">
-                                <i class="fas fa-flask text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-amber-400">Demo Mode</p>
-                                <p class="text-xs text-slate-400">No account needed. Practice Semester 1 subjects.</p>
-                            </div>
-                        </div>
-                        <button id="btn-demo-login-page" class="w-full py-2.5 rounded-xl font-bold bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 hover:text-amber-300 transition-all text-center text-sm cursor-pointer flex items-center justify-center gap-2">
-                            <i class="fas fa-flask text-xs"></i>
-                            <span>Continue as Demo Student</span>
-                        </button>
-                    </div>
                 </div>
 
         </div>
@@ -186,26 +159,6 @@
 
         redirectIfLoggedIn();
         showErrorFromQuery();
-
-        // Demo login handler
-        const demoBtn = document.getElementById('btn-demo-login-page');
-        if (demoBtn) {
-            demoBtn.addEventListener('click', async function() {
-                this.disabled = true;
-                this.innerHTML = '<i class="fas fa-spinner fa-pulse text-xs"></i> Logging in...';
-                const res = await fetchAPI('/auth/demo-login', { method: 'POST' });
-                if (res.error) {
-                    alert('Demo login failed: ' + res.msg);
-                    this.disabled = false;
-                    this.innerHTML = '<i class="fas fa-flask text-xs"></i><span>Continue as Demo Student</span>';
-                    return;
-                }
-                if (res.user) {
-                    Auth.saveUser(res.user);
-                }
-                window.location.href = res.redirect || '/dashboard';
-            });
-        }
     </script>
 </body>
 </html>

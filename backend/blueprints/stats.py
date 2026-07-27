@@ -37,8 +37,7 @@ def get_dashboard_stats():
     return jsonify({
         "user": user.to_dict(),
         "stats": stats.to_dict(),
-        "recent_attempts": attempts_data,
-        "is_demo": user.username == "demo_student"
+        "recent_attempts": attempts_data
     }), 200
 
 

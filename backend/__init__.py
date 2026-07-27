@@ -81,7 +81,7 @@ def create_app(config_class=Config):
         db.create_all()
         seed_subjects()
         seed_admin()
-        seed_demo_user()
+        remove_demo_user()
 
     return app
 
@@ -153,42 +153,17 @@ def seed_subjects():
         print(f"Failed to seed subjects: {str(e)}")
 
 
-def seed_demo_user():
-    """Seeds a demo user account for Semester 1 practice without SSO."""
-    demo_username = "demo_student"
-    demo_user = User.query.filter_by(username=demo_username).first()
-    if demo_user:
-        return
-
+def remove_demo_user():
+    """Removes demo student account if present in database."""
     try:
-        demo = User(
-            username=demo_username,
-            email="demo@mcq-portal.local",
-            name="Demo Student",
-            password_hash=None,
-            is_sso_user=False,
-            streak=0,
-            xp_points=0,
-            badge="Bronze",
-            created_at=datetime.now(timezone.utc),
-        )
-        db.session.add(demo)
-        db.session.flush()
-
-        demo_stats = Stats(
-            user_id=demo.id,
-            highest_score=0,
-            average_score=0.0,
-            total_attempts=0,
-            win_ratio=0.0,
-            current_streak=0,
-        )
-        db.session.add(demo_stats)
-        db.session.commit()
-        print(f"Seeded demo user: {demo_username}")
+        demo = User.query.filter_by(username="demo_student").first()
+        if demo:
+            db.session.delete(demo)
+            db.session.commit()
+            print("Purged demo student user from database.")
     except Exception as e:
         db.session.rollback()
-        print(f"Failed to seed demo user: {str(e)}")
+        print(f"Error purging demo user: {str(e)}")
 
 
 def seed_admin():
