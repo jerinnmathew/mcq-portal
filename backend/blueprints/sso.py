@@ -84,7 +84,7 @@ def sso_login():
     site (PADIKKUNNUNDO_URL) so users are always forced to authenticate there first.
     """
     padikkunnundo_url = current_app.config.get("PADIKKUNNUNDO_URL", "https://padikkunnundo.app").rstrip("/")
-    next_path = _sanitize_next_path(request.args.get("next", "/dashboard"))
+    next_path = _sanitize_next_path(request.args.get("next", "/"))
     token = request.args.get("token", "").strip()
 
     if not token:
