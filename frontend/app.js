@@ -5,6 +5,8 @@
 
 const API_BASE = '/api';
 
+const PADIKKUNNUNDO_URL = 'https://padikkunnundo.app';
+
 // --- UI Theme (Always Light Mode) ---
 const Theme = {
     init() {
@@ -40,32 +42,17 @@ const Auth = {
     },
     
     isAuthenticated() {
-        // Fast path: localStorage already has user data
         if (!!this.getUser()) return true;
-        // Secondary: csrf_access_token is a JS-readable non-httponly cookie set by
-        // Flask-JWT-Extended — its presence means a valid JWT session cookie exists.
         if (getCookie('csrf_access_token')) return true;
         return false;
     },
 
-    /**
-     * Try to restore a server-side session (via HttpOnly cookies) into localStorage.
-     * This handles the case where the SSO redirect set cookies but the client has no
-     * cached user data yet. Call this early on every page that needs auth state.
-     * 
-     * Returns: Promise<boolean> — true if session was restored successfully
-     */
     async tryRestoreSession() {
-        // If we already have cached user data, no need to restore
         if (this.getUser()) {
             this._sessionRestored = true;
             return true;
         }
 
-        // Check for the CSRF token cookie — this is the JS-readable indicator that a valid
-        // JWT session exists. Flask-JWT-Extended sets 'csrf_access_token' as a NON-httponly
-        // cookie alongside the httponly 'access_token_cookie'. We cannot read 'session_token'
-        // or 'access_token_cookie' from JS because they are HttpOnly by browser security design.
         if (!getCookie('csrf_access_token')) {
             this._sessionRestored = true;
             return false;
@@ -76,7 +63,6 @@ const Auth = {
             if (!data.error && data.user) {
                 this.saveUser(data.user);
                 this._sessionRestored = true;
-                console.log('Session restored for:', data.user.username);
                 return true;
             }
         } catch (e) {
@@ -88,7 +74,6 @@ const Auth = {
     },
 
     logout() {
-        // Fetch CSRF double-submit token for secure state-changing POST requests
         const csrfToken = getCookie('csrf_access_token');
         fetch(`${API_BASE}/auth/logout`, { 
             method: 'POST', 
@@ -97,7 +82,7 @@ const Auth = {
             }
         }).finally(() => {
             this.clearSession();
-            window.location.href = '/login';
+            window.location.href = PADIKKUNNUNDO_URL;
         });
     }
 };
@@ -112,7 +97,6 @@ function getCookie(name) {
 
 // --- Secure API Fetch Wrapper ---
 async function fetchAPI(endpoint, options = {}) {
-    // Set headers
     const headers = {
         ...(options.headers || {})
     };
@@ -121,7 +105,6 @@ async function fetchAPI(endpoint, options = {}) {
         headers['Content-Type'] = 'application/json';
     }
     
-    // Auto-inject double-submit CSRF token for state-changing operations
     const method = (options.method || 'GET').toUpperCase();
     if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
         const csrfToken = getCookie('csrf_access_token');
@@ -131,7 +114,7 @@ async function fetchAPI(endpoint, options = {}) {
     }
     
     const config = {
-        credentials: 'same-origin', // Ensure secure cookies are sent with requests
+        credentials: 'same-origin',
         ...options,
         headers
     };
@@ -139,17 +122,11 @@ async function fetchAPI(endpoint, options = {}) {
     try {
         const response = await fetch(`${API_BASE}${endpoint}`, config);
         
-        // Auto handle session expiration
         if (response.status === 401) {
-            console.warn("Session expired or unauthorized. Redirecting to login.");
+            console.warn("Session expired or unauthorized. Redirecting to padikkunnundo.app");
             Auth.clearSession();
-            const isAuthPage = window.location.pathname === '/login';
-            if (!isAuthPage) {
-                window.location.href = '/login';
-                return { error: true, msg: "Session expired. Please log in again." };
-            }
-            const data = await response.json();
-            return { error: true, msg: data.msg || "Invalid username or password" };
+            window.location.href = PADIKKUNNUNDO_URL;
+            return { error: true, msg: "Session expired. Please sign in via main site." };
         }
         
         const data = await response.json();
@@ -160,14 +137,20 @@ async function fetchAPI(endpoint, options = {}) {
         return data;
     } catch (err) {
         console.error(`API Error on ${endpoint}:`, err);
-        return { error: true, msg: "Network error. Make sure the server is running." };
+        return { error: true, msg: "Network error." };
     }
 }
 
 // --- Page Guards ---
-function protectPage() {
-    // Do not rely solely on localStorage for auth state.
-    // The backend validates the HttpOnly session_token cookie on each request.
+async function protectPage() {
+    if (!Auth.isAuthenticated()) {
+        const restored = await Auth.tryRestoreSession();
+        if (!restored) {
+            Auth.clearSession();
+            window.location.href = PADIKKUNNUNDO_URL;
+            return;
+        }
+    }
 }
 
 function redirectIfLoggedIn() {
@@ -184,17 +167,17 @@ function renderNavbar() {
     const isLoggedIn = Auth.isAuthenticated();
     const user = Auth.getUser();
 
-    // Determine active class for Home
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    const isHome = currentPage === 'index.html' || currentPage === '';
+    const currentPage = window.location.pathname;
+    const isHome = currentPage === '/' || currentPage === '/index.html' || currentPage === '';
     const homeClass = isHome ? 'active-nav-btn' : '';
+    const adminClass = (currentPage === '/admin' || currentPage === '/admin.html') ? 'active-nav-btn' : '';
 
     navbarContainer.innerHTML = `
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Logo -->
                 <div class="flex items-center">
-                    <a href="index.html" class="flex items-center">
+                    <a href="/" class="flex items-center">
                         <img src="assets/logo.png" alt="MCQ Portal Logo" class="h-8 w-auto object-contain rounded-lg">
                     </a>
                 </div>
@@ -216,9 +199,9 @@ function renderNavbar() {
                         </div>
                         <div class="h-6 w-px bg-white/20 hidden md:block"></div>
                     ` : ''}
-                    <a href="index.html" class="nav-btn ${homeClass}">Home</a>
+                    <a href="/" class="nav-btn ${homeClass}">Home</a>
                     ${isLoggedIn && user && user.is_admin ? `
-                        <a href="admin.html" class="nav-btn ${currentPage === 'admin.html' || currentPage === 'admin' ? 'active-nav-btn' : ''}">Admin</a>
+                        <a href="/admin" class="nav-btn ${adminClass}">Admin</a>
                     ` : ''}
                 </div>
 
@@ -242,9 +225,9 @@ function renderNavbar() {
             <!-- Mobile Navigation Dropdown Panel -->
             <div id="mobile-nav-panel" class="hidden md:hidden pb-3 border-t border-white/5 pt-3">
                 <div class="flex flex-col gap-1.5">
-                    <a href="index.html" class="nav-btn ${homeClass} w-full justify-start">Home</a>
+                    <a href="/" class="nav-btn ${homeClass} w-full justify-start">Home</a>
                     ${isLoggedIn && user && user.is_admin ? `
-                        <a href="admin.html" class="nav-btn ${currentPage === 'admin.html' || currentPage === 'admin' ? 'active-nav-btn' : ''} w-full justify-start">Admin</a>
+                        <a href="/admin" class="nav-btn ${adminClass} w-full justify-start">Admin</a>
                     ` : ''}
                 </div>
             </div>

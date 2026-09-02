@@ -44,32 +44,66 @@ def create_app(config_class=Config):
             "subjects": [{"id": s.id, "name": s.name, "semester": s.semester} for s in subjects]
         }, 200
 
+    padikkunnundo_url = app.config.get("PADIKKUNNUNDO_URL", "https://padikkunnundo.app").rstrip("/")
+
+    def _get_authenticated_user():
+        from backend.utils.helpers import get_current_user
+        return get_current_user()
+
+    def _serve_protected(filename, clean_route):
+        if request.path.endswith('.html'):
+            return redirect(clean_route, code=301)
+        user = _get_authenticated_user()
+        if not user:
+            return redirect(padikkunnundo_url, code=302)
+        resp = app.make_response(send_from_directory(app.static_folder, filename))
+        resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        resp.headers['Pragma'] = 'no-cache'
+        resp.headers['Expires'] = '0'
+        return resp
+
+    @app.route('/login')
+    @app.route('/login.html')
+    @app.route('/register')
+    @app.route('/register.html')
+    def serve_login():
+        return redirect(padikkunnundo_url, code=302)
+
+    @app.route('/dashboard')
+    @app.route('/dashboard.html')
+    def serve_dashboard():
+        return _serve_protected('dashboard.html', '/dashboard')
+
     @app.route('/admin')
     @app.route('/admin.html')
     def serve_admin():
-        try:
-            verify_jwt_in_request()
-            user_id = get_jwt_identity()
-            user = db.session.get(User, int(user_id)) if user_id else None
-            admin_username = os.environ.get('ADMIN_USERNAME')
-            if not admin_username or not user or user.username != admin_username:
-                return redirect('/login')
-            if request.path.endswith('.html'):
-                return redirect('/admin')
-            return send_from_directory(app.static_folder, 'admin.html')
-        except Exception:
-            return redirect('/login')
+        if request.path.endswith('.html'):
+            return redirect('/admin', code=301)
+        user = _get_authenticated_user()
+        admin_username = os.environ.get('ADMIN_USERNAME')
+        if not user or not admin_username or user.username != admin_username:
+            return redirect(padikkunnundo_url, code=302)
+        resp = app.make_response(send_from_directory(app.static_folder, 'admin.html'))
+        resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        resp.headers['Pragma'] = 'no-cache'
+        resp.headers['Expires'] = '0'
+        return resp
 
-    @app.route('/login')
-    def serve_login():
-        return send_from_directory(app.static_folder, 'login.html')
+    @app.route('/quiz')
+    @app.route('/quiz.html')
+    def serve_quiz():
+        return _serve_protected('quiz.html', '/quiz')
 
-    @app.route('/dashboard')
-    def serve_dashboard():
-        return send_from_directory(app.static_folder, 'dashboard.html')
+    @app.route('/results')
+    @app.route('/results.html')
+    def serve_results():
+        return _serve_protected('results.html', '/results')
 
     @app.route('/')
+    @app.route('/index.html')
     def serve_index():
+        if request.path.endswith('.html'):
+            return redirect('/', code=301)
         return send_from_directory(app.static_folder, 'index.html')
 
     with app.app_context():

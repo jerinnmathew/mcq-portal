@@ -476,7 +476,7 @@
         const isAdmin = activeUser && activeUser.is_admin;
         if (!isAdmin) {
             alert("Access Denied. Only the administrator account can enter the Admin Control Panel.");
-            window.location.href = 'dashboard.html';
+            window.location.href = '/dashboard';
         }
 
         // Global state: tracks current subject filter (null = show all)

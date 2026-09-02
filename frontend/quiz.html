@@ -168,14 +168,14 @@
             const cached = localStorage.getItem('current_quiz_questions');
             if (!cached) {
                 alert("No active quiz session found. Please configure a quiz on your Dashboard.");
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
                 return;
             }
 
             questions = JSON.parse(cached);
             if (questions.length === 0) {
                 alert("Question pool is empty. Please select a different category.");
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
                 return;
             }
 
@@ -518,7 +518,7 @@
 
             if (res.error) {
                 alert(`Submit failed: ${res.msg}`);
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
             } else {
                 // Clear active question pool
                 localStorage.removeItem('current_quiz_questions');
@@ -527,7 +527,7 @@
                 localStorage.setItem('last_quiz_results', JSON.stringify(res));
 
                 // Take to results dashboard
-                window.location.href = 'results.html';
+                window.location.href = '/results';
             }
         }
     </script>
