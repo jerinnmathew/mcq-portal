@@ -184,13 +184,10 @@ function renderNavbar() {
     const isLoggedIn = Auth.isAuthenticated();
     const user = Auth.getUser();
 
-    // Determine active class for Home vs Leaderboard
+    // Determine active class for Home
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     const isHome = currentPage === 'index.html' || currentPage === '';
-    const isLeaderboard = currentPage === 'leaderboard.html';
-
     const homeClass = isHome ? 'active-nav-btn' : '';
-    const leaderboardClass = isLeaderboard ? 'active-nav-btn' : '';
 
     navbarContainer.innerHTML = `
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -220,7 +217,6 @@ function renderNavbar() {
                         <div class="h-6 w-px bg-white/20 hidden md:block"></div>
                     ` : ''}
                     <a href="index.html" class="nav-btn ${homeClass}">Home</a>
-                    <a href="leaderboard.html" class="nav-btn ${leaderboardClass}">Leaderboard</a>
                     ${isLoggedIn && user && user.is_admin ? `
                         <a href="admin.html" class="nav-btn ${currentPage === 'admin.html' || currentPage === 'admin' ? 'active-nav-btn' : ''}">Admin</a>
                     ` : ''}
@@ -247,7 +243,6 @@ function renderNavbar() {
             <div id="mobile-nav-panel" class="hidden md:hidden pb-3 border-t border-white/5 pt-3">
                 <div class="flex flex-col gap-1.5">
                     <a href="index.html" class="nav-btn ${homeClass} w-full justify-start">Home</a>
-                    <a href="leaderboard.html" class="nav-btn ${leaderboardClass} w-full justify-start">Leaderboard</a>
                     ${isLoggedIn && user && user.is_admin ? `
                         <a href="admin.html" class="nav-btn ${currentPage === 'admin.html' || currentPage === 'admin' ? 'active-nav-btn' : ''} w-full justify-start">Admin</a>
                     ` : ''}
