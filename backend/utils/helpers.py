@@ -1,9 +1,12 @@
-from datetime import datetime
+import time
+from datetime import datetime, timezone
 from functools import wraps
 
 import jwt as pyjwt
 from flask import current_app, request, jsonify
-from backend.models import User
+from backend.models import db, User
+
+_rate_tracker = {}
 
 
 def get_current_user():
@@ -29,7 +32,7 @@ def get_current_user():
         return None
 
     try:
-        return User.query.get(int(user_id))
+        return db.session.get(User, int(user_id))
     except (TypeError, ValueError):
         return None
 
@@ -45,6 +48,46 @@ def login_required(fn):
     return wrapper
 
 
+def get_client_ip():
+    """Extract real client IP address, taking reverse proxy headers into account."""
+    if request.headers.get("X-Forwarded-For"):
+        return request.headers.get("X-Forwarded-For").split(",")[0].strip()
+    return request.remote_addr or "127.0.0.1"
+
+
+def get_rate_limit_key():
+    """
+    Generates a unique rate-limiting key.
+    Uses User ID if logged in, otherwise falls back to Client IP.
+    This prevents users sharing the same NAT/Wi-Fi router from locking each other out.
+    """
+    user = get_current_user()
+    if user:
+        return f"user_{user.id}"
+    return f"ip_{get_client_ip()}"
+
+
+def rate_limit(limit=30, period=60):
+    """
+    In-memory API Rate Limiter decorator.
+    Identifies logged-in users by User ID, and unauthenticated visitors by Client IP.
+    """
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            key = get_rate_limit_key()
+            now = time.time()
+            if key not in _rate_tracker:
+                _rate_tracker[key] = []
+            _rate_tracker[key] = [t for t in _rate_tracker[key] if now - t < period]
+            if len(_rate_tracker[key]) >= limit:
+                return jsonify({"msg": "Too many requests. Please wait a moment."}), 429
+            _rate_tracker[key].append(now)
+            return f(*args, **kwargs)
+        return wrapped
+    return decorator
+
+
 def calculate_streak_and_xp(user, score, total_questions, last_attempt):
     """
     Calculates updated streak, XP rewards, and badges for a user.
@@ -55,7 +98,7 @@ def calculate_streak_and_xp(user, score, total_questions, last_attempt):
     accuracy = (score / total_questions) * 100 if total_questions > 0 else 0.0
 
     # 2. Calculate streak updates
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     today = now.date()
     
     current_streak = user.streak

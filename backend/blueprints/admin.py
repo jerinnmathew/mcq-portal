@@ -5,7 +5,10 @@ import os
 
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
+from sqlalchemy import func
+from sqlalchemy.orm import joinedload, load_only
 from backend.models import db, MCQ, User, Attempt, Stats, Subject
+from backend.extensions import cache
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -36,8 +39,7 @@ def check_admin_privileges():
     try:
         verify_jwt_in_request()
         user_id = get_jwt_identity()
-        user = User.query.get(int(user_id))
-        import os
+        user = db.session.get(User, int(user_id)) if user_id else None
         admin_user = os.environ.get('ADMIN_USERNAME')
         if not admin_user:
             return jsonify({"msg": "Admin not configured. Set ADMIN_USERNAME/ADMIN_PASSWORD env vars."}), 500
@@ -183,6 +185,8 @@ def clear_questions():
     try:
         deleted_count = MCQ.query.delete()
         db.session.commit()
+        from backend.blueprints.quiz import _get_question_pool
+        cache.delete_memoized(_get_question_pool)
         return jsonify({"msg": f"Cleared {deleted_count} questions from the database."}), 200
     except Exception as e:
         db.session.rollback()
@@ -245,6 +249,11 @@ def import_questions():
 
     imported_count = 0
     errors = []
+
+    # Pre-load ALL existing question texts into a set — one query replaces N per-row SELECTs
+    existing_texts: set[str] = {
+        row[0] for row in db.session.query(MCQ.question).all()
+    }
 
     for idx, item in enumerate(payload):
         if not isinstance(item, dict):
@@ -378,10 +387,10 @@ def import_questions():
         elif subject and str(item.get('category', '') or item.get('topic', '') or form_category or '').strip():
             category = str(item.get('category', '') or item.get('topic', '') or form_category or '').strip()
 
-        existing_question = MCQ.query.filter_by(question=question).first()
-        if existing_question:
-            errors.append(f"Row {idx+1}: Question already exists in the database and was skipped.")
+        if question in existing_texts:
+            errors.append(f"Row {idx+1}: Question already exists and was skipped.")
             continue
+        existing_texts.add(question)  # guard against duplicates within the same import batch
 
         try:
             new_q = MCQ(
@@ -403,6 +412,9 @@ def import_questions():
     if imported_count > 0:
         try:
             db.session.commit()
+            # Bust the question-pool cache so the next quiz request picks up new questions
+            from backend.blueprints.quiz import _get_question_pool
+            cache.delete_memoized(_get_question_pool)
         except Exception as e:
             db.session.rollback()
             current_app.logger.error(f"Failed to save imported questions: {str(e)}")
@@ -416,34 +428,43 @@ def import_questions():
 
 @admin_bp.route('/users', methods=['GET'])
 def get_users_list():
-    """Returns a list of all registered users (excluding the admin) and their stats."""
-    import os
+    """Returns a list of all registered users (excluding the admin) and their stats.
+
+    Uses joinedload so user.stats comes from a single JOIN — no N+1.
+    """
     admin_user = os.environ.get('ADMIN_USERNAME')
     if not admin_user:
         return jsonify({"msg": "Admin not configured. Set ADMIN_USERNAME env var."}), 500
 
-    users = User.query.filter(User.username != admin_user).order_by(User.id.asc()).all()
-    user_list = []
-    
-    for u in users:
-        stats_dict = u.stats.to_dict() if u.stats else {}
-        user_list.append({
+    users = (
+        User.query
+        .options(
+            load_only(User.id, User.username, User.streak, User.xp_points, User.badge, User.created_at),
+            joinedload(User.stats),
+        )
+        .filter(User.username != admin_user)
+        .order_by(User.id.asc())
+        .all()
+    )
+
+    user_list = [
+        {
             "id": u.id,
             "username": u.username,
             "streak": u.streak,
             "xp_points": u.xp_points,
             "badge": u.badge,
             "created_at": u.created_at.isoformat() if u.created_at else None,
-            "stats": stats_dict
-        })
-        
+            "stats": u.stats.to_dict() if u.stats else {},
+        }
+        for u in users
+    ]
     return jsonify(user_list), 200
 
 
 @admin_bp.route('/attempts', methods=['GET'])
 def get_recent_attempts():
     """Lists global recent attempts (excluding the admin) with associated student username."""
-    import os
     admin_user = os.environ.get('ADMIN_USERNAME')
     if not admin_user:
         return jsonify({"msg": "Admin not configured. Set ADMIN_USERNAME env var."}), 500
@@ -783,6 +804,8 @@ def import_questions_batch():
 
     try:
         db.session.commit()
+        from backend.blueprints.quiz import _get_question_pool
+        cache.delete_memoized(_get_question_pool)
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Failed to save batch: {str(e)}")
@@ -803,21 +826,35 @@ def import_questions_batch():
 
 @admin_bp.route('/subjects', methods=['GET'])
 def admin_list_subjects():
-    """Returns all subjects grouped by semester for admin management."""
-    subjects = Subject.query.order_by(Subject.semester.asc(), Subject.name.asc()).all()
+    """Returns all subjects grouped by semester for admin management.
+
+    Question counts are computed with a single COUNT aggregate JOIN —
+    no MCQ objects are loaded into memory.
+    """
+    results = (
+        db.session.query(
+            Subject,
+            func.count(MCQ.id).label('question_count'),
+        )
+        .outerjoin(MCQ, MCQ.subject_id == Subject.id)
+        .group_by(Subject.id)
+        .order_by(Subject.semester.asc(), Subject.name.asc())
+        .all()
+    )
+
     grouped = {}
-    for s in subjects:
-        sem = str(s.semester)
-        if sem not in grouped:
-            grouped[sem] = []
-        question_count = len(s.questions)
-        grouped[sem].append({
-            "id": s.id,
-            "name": s.name,
-            "semester": s.semester,
-            "question_count": question_count
+    total = 0
+    for subject, question_count in results:
+        sem = str(subject.semester)
+        grouped.setdefault(sem, []).append({
+            "id": subject.id,
+            "name": subject.name,
+            "semester": subject.semester,
+            "question_count": question_count,
         })
-    return jsonify({"grouped": grouped, "total": len(subjects)}), 200
+        total += 1
+
+    return jsonify({"grouped": grouped, "total": total}), 200
 
 
 @admin_bp.route('/subjects', methods=['POST'])
@@ -844,6 +881,7 @@ def admin_create_subject():
         new_subject = Subject(name=name, semester=semester)
         db.session.add(new_subject)
         db.session.commit()
+        cache.delete('subjects_list')  # invalidate public subjects cache
         return jsonify({"msg": f"Subject '{name}' added to Semester {semester}.", "subject": new_subject.to_dict()}), 201
     except Exception as e:
         db.session.rollback()
@@ -853,27 +891,27 @@ def admin_create_subject():
 
 @admin_bp.route('/subjects/<int:sid>', methods=['DELETE'])
 def admin_delete_subject(sid):
-    """Deletes a subject and detaches any linked questions."""
-    subject = Subject.query.get(sid)
+    """Deletes a subject and detaches any linked questions via a bulk UPDATE."""
+    subject = db.session.get(Subject, sid)
     if not subject:
         return jsonify({"msg": "Subject not found"}), 404
 
-    linked_questions = MCQ.query.filter_by(subject_id=sid).all()
-    linked_count = len(linked_questions)
+    linked_count = MCQ.query.filter_by(subject_id=sid).count()
 
     try:
-        for mcq in linked_questions:
-            mcq.subject_id = None
-
+        # Bulk UPDATE — no MCQ objects loaded into memory
+        if linked_count > 0:
+            MCQ.query.filter_by(subject_id=sid).update(
+                {"subject_id": None}, synchronize_session="fetch"
+            )
         db.session.delete(subject)
         db.session.commit()
+        cache.delete('subjects_list')  # invalidate public subjects cache
 
+        msg = f"Subject '{subject.name}' deleted."
         if linked_count > 0:
-            return jsonify({
-                "msg": f"Subject '{subject.name}' deleted successfully. {linked_count} linked question(s) were detached."
-            }), 200
-
-        return jsonify({"msg": f"Subject '{subject.name}' deleted successfully."}), 200
+            msg += f" {linked_count} question(s) detached."
+        return jsonify({"msg": msg}), 200
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Failed to delete subject: {str(e)}")
@@ -883,7 +921,7 @@ def admin_delete_subject(sid):
 @admin_bp.route('/subjects/<int:sid>', methods=['PUT'])
 def admin_update_subject(sid):
     """Renames a subject or changes its semester."""
-    subject = Subject.query.get(sid)
+    subject = db.session.get(Subject, sid)
     if not subject:
         return jsonify({"msg": "Subject not found"}), 404
 
@@ -897,7 +935,6 @@ def admin_update_subject(sid):
     except (TypeError, ValueError):
         return jsonify({"msg": "Semester must be a number between 1 and 8"}), 400
 
-    # Check name conflict with another subject
     conflict = Subject.query.filter(Subject.name == name, Subject.id != sid).first()
     if conflict:
         return jsonify({"msg": f"Subject name '{name}' is already used by another subject."}), 409
@@ -906,7 +943,8 @@ def admin_update_subject(sid):
         subject.name = name
         subject.semester = semester
         db.session.commit()
-        return jsonify({"msg": f"Subject updated successfully.", "subject": subject.to_dict()}), 200
+        cache.delete('subjects_list')  # invalidate public subjects cache
+        return jsonify({"msg": "Subject updated successfully.", "subject": subject.to_dict()}), 200
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Failed to update subject: {str(e)}")

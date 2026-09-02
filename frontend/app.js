@@ -97,7 +97,7 @@ const Auth = {
             }
         }).finally(() => {
             this.clearSession();
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         });
     }
 };
@@ -143,9 +143,9 @@ async function fetchAPI(endpoint, options = {}) {
         if (response.status === 401) {
             console.warn("Session expired or unauthorized. Redirecting to login.");
             Auth.clearSession();
-            const isAuthPage = window.location.pathname.endsWith('login.html') || window.location.pathname.endsWith('register.html');
+            const isAuthPage = window.location.pathname === '/login';
             if (!isAuthPage) {
-                window.location.href = 'login.html';
+                window.location.href = '/login';
                 return { error: true, msg: "Session expired. Please log in again." };
             }
             const data = await response.json();
@@ -172,7 +172,7 @@ function protectPage() {
 
 function redirectIfLoggedIn() {
     if (Auth.isAuthenticated()) {
-        window.location.href = 'dashboard.html';
+        window.location.href = '/dashboard';
     }
 }
 
@@ -221,7 +221,7 @@ function renderNavbar() {
                     ` : ''}
                     <a href="index.html" class="nav-btn ${homeClass}">Home</a>
                     <a href="leaderboard.html" class="nav-btn ${leaderboardClass}">Leaderboard</a>
-                    ${isLoggedIn && user && user.username === 'jerin_admin' ? `
+                    ${isLoggedIn && user && user.is_admin ? `
                         <a href="admin.html" class="nav-btn ${currentPage === 'admin.html' || currentPage === 'admin' ? 'active-nav-btn' : ''}">Admin</a>
                     ` : ''}
                 </div>
@@ -248,7 +248,7 @@ function renderNavbar() {
                 <div class="flex flex-col gap-1.5">
                     <a href="index.html" class="nav-btn ${homeClass} w-full justify-start">Home</a>
                     <a href="leaderboard.html" class="nav-btn ${leaderboardClass} w-full justify-start">Leaderboard</a>
-                    ${isLoggedIn && user && user.username === 'jerin_admin' ? `
+                    ${isLoggedIn && user && user.is_admin ? `
                         <a href="admin.html" class="nav-btn ${currentPage === 'admin.html' || currentPage === 'admin' ? 'active-nav-btn' : ''} w-full justify-start">Admin</a>
                     ` : ''}
                 </div>

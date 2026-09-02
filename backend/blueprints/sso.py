@@ -1,9 +1,11 @@
+import uuid
 from datetime import datetime, timedelta, timezone
 from urllib.parse import urlparse
 
 import jwt as pyjwt
 from flask import Blueprint, current_app, make_response, redirect, request
 from flask_jwt_extended import create_access_token, set_access_cookies
+from backend.utils.helpers import rate_limit
 
 sso_bp = Blueprint("sso", __name__, url_prefix="/sso")
 
@@ -13,16 +15,17 @@ _SSO_ALGORITHM = "HS256"
 
 
 def _sanitize_next_path(next_path: str) -> str:
+    """Return a safe relative path, falling back to /dashboard on any suspicious input."""
     if not next_path:
-        return "/"
+        return "/dashboard"
 
     parsed = urlparse(next_path)
     if parsed.scheme or parsed.netloc:
-        return "/"
+        return "/dashboard"
 
     path = parsed.path
     if not path.startswith("/") or path.startswith("//"):
-        return "/"
+        return "/dashboard"
 
     if path == "/dashboard.html":
         path = "/dashboard"
@@ -36,29 +39,36 @@ def _sanitize_next_path(next_path: str) -> str:
 
 
 def _verify_sso_token(token: str) -> dict | None:
-    """Validate the incoming SSO JWT from padikkunnundo.app."""
+    """Validate the incoming SSO JWT from padikkunnundo.app.
+
+    Strictly enforces:
+      - Signature (HMAC-SHA256 via SSO_JWT_SECRET)
+      - Expiry (exp claim)
+      - Audience must be exactly "mcq-quiz"
+      - Issuer must be exactly "padikkunnundo"
+    """
     secret = current_app.config.get("SSO_JWT_SECRET", "")
     if not secret:
         current_app.logger.error("SSO_JWT_SECRET is not configured")
         return None
 
     try:
-        # Use verify_aud=False to match padikkunnundo.app JWT structure.
-        # The audience claim ("mcq-quiz") is present but we validate it manually below.
         payload = pyjwt.decode(
             token,
             secret,
             algorithms=[_SSO_ALGORITHM],
-            options={"verify_aud": False},
+            audience=_SSO_AUDIENCE,
+            issuer=_SSO_ISSUER,
         )
-        # Soft-check issuer — warn but don't reject to allow dev tokens
-        if payload.get("iss") and payload["iss"] != _SSO_ISSUER:
-            current_app.logger.warning(
-                f"SSO: unexpected issuer '{payload['iss']}' (expected '{_SSO_ISSUER}')"
-            )
         return payload
     except pyjwt.ExpiredSignatureError:
         current_app.logger.warning("SSO: token expired")
+        return None
+    except pyjwt.InvalidAudienceError:
+        current_app.logger.warning("SSO: invalid audience claim")
+        return None
+    except pyjwt.InvalidIssuerError:
+        current_app.logger.warning("SSO: invalid issuer claim")
         return None
     except pyjwt.PyJWTError as e:
         current_app.logger.warning(f"SSO: token invalid — {e}")
@@ -66,41 +76,50 @@ def _verify_sso_token(token: str) -> dict | None:
 
 
 @sso_bp.route("/login")
+@rate_limit(limit=120, period=60)
 def sso_login():
-    """Accept an SSO JWT, create or update the local user, and log them in."""
+    """Accept an SSO JWT from padikkunnundo.app, find or create the local user, and establish a session.
+
+    Any request that does not carry a valid token is bounced back to the main
+    site (PADIKKUNNUNDO_URL) so users are always forced to authenticate there first.
+    """
+    padikkunnundo_url = current_app.config.get("PADIKKUNNUNDO_URL", "https://padikkunnundo.app").rstrip("/")
+    next_path = _sanitize_next_path(request.args.get("next", "/dashboard"))
     token = request.args.get("token", "").strip()
-    next_path = _sanitize_next_path(request.args.get("next", "/"))
 
     if not token:
-        return redirect("/login?error=missing_token")
+        current_app.logger.info("SSO: no token — redirecting to main site")
+        return redirect(padikkunnundo_url)
 
     payload = _verify_sso_token(token)
     if payload is None:
-        return redirect("/login?error=invalid_token")
+        current_app.logger.info("SSO: invalid/expired token — redirecting to main site")
+        return redirect(padikkunnundo_url)
 
     from backend.models import User, db
 
     try:
         sso_id = int(payload["sub"])
     except (KeyError, TypeError, ValueError):
-        return redirect("/login?error=invalid_token")
+        current_app.logger.warning("SSO: missing or non-numeric 'sub' claim")
+        return redirect(padikkunnundo_url)
 
-    email = payload.get("email")
+    email = payload.get("email", "").strip()
     if not email:
-        return redirect("/login?error=invalid_token")
+        current_app.logger.warning("SSO: missing email claim")
+        return redirect(padikkunnundo_url)
 
     name = payload.get("name", "").strip() or None
     college = payload.get("college", "").strip() or None
+    now = datetime.now(timezone.utc)
 
     user = User.query.filter_by(email=email).first()
 
     if user is None:
-        base_username = (name or email.split("@")[0] or f"user_{sso_id}")[:80]
-        username = base_username
-        suffix = 1
-        while User.query.filter_by(username=username).first():
-            username = f"{base_username[:76]}_{suffix}"
-            suffix += 1
+        base_username = (name or email.split("@")[0] or f"user_{sso_id}")[:76]
+        # Check for any existing username starting with base_username in a single query
+        collision = User.query.filter(User.username.like(f"{base_username}%")).count()
+        username = base_username if collision == 0 else f"{base_username}_{uuid.uuid4().hex[:6]}"
 
         user = User(
             username=username,
@@ -112,19 +131,19 @@ def sso_login():
             is_sso_user=True,
             streak=0,
             xp_points=0,
-            badge="Beginner",
-            created_at=datetime.now(timezone.utc),
-            last_sso_login=datetime.now(timezone.utc),
+            badge="Bronze",
+            created_at=now,
+            last_sso_login=now,
         )
         db.session.add(user)
         db.session.commit()
-        current_app.logger.info(f"SSO: created new user '{username}' (sso_id={sso_id})")
+        current_app.logger.info(f"SSO: created user '{username}' (sso_id={sso_id})")
     else:
         user.sso_id = user.sso_id or sso_id
         user.name = name or user.name
         user.college = college or user.college
         user.is_sso_user = True
-        user.last_sso_login = datetime.now(timezone.utc)
+        user.last_sso_login = now
         db.session.commit()
         current_app.logger.info(f"SSO: returning user '{user.username}' (email={email})")
 
@@ -132,13 +151,11 @@ def sso_login():
     session_token = pyjwt.encode(
         {
             "sub": str(user.id),
-            "exp": datetime.utcnow() + timedelta(days=30),
+            "exp": datetime.now(timezone.utc) + timedelta(days=30),
         },
         current_app.config["SECRET_KEY"],
         algorithm=_SSO_ALGORITHM,
     )
-    if isinstance(session_token, bytes):
-        session_token = session_token.decode("utf-8")
 
     response = make_response(redirect(next_path))
     set_access_cookies(response, access_token)

@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -51,7 +52,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=True)
     streak = db.Column(db.Integer, default=0, nullable=False)
-    xp_points = db.Column(db.Integer, default=0, nullable=False)
+    xp_points = db.Column(db.Integer, default=0, nullable=False, index=True)
     badge = db.Column(db.String(50), default='Bronze', nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
@@ -79,6 +80,7 @@ class User(db.Model):
 
     def to_dict(self):
         """Serializes user fields for JSON API consumption."""
+        admin_user = os.environ.get('ADMIN_USERNAME')
         return {
             "id": self.id,
             "username": self.username,
@@ -87,6 +89,7 @@ class User(db.Model):
             "college": self.college,
             "sso_id": self.sso_id,
             "is_sso_user": self.is_sso_user,
+            "is_admin": bool(admin_user and self.username == admin_user),
             "streak": self.streak,
             "xp_points": self.xp_points,
             "badge": self.badge,
@@ -105,8 +108,8 @@ class MCQ(db.Model):
     option_b = db.Column(db.Text, nullable=False)
     option_c = db.Column(db.Text, nullable=False)
     option_d = db.Column(db.Text, nullable=False)
-    correct_answer = db.Column(db.String(1), nullable=False) # 'A', 'B', 'C', or 'D'
-    category = db.Column(db.String(150), default='General', nullable=False)
+    correct_answer = db.Column(db.String(1), nullable=False)  # 'A', 'B', 'C', or 'D'
+    category = db.Column(db.String(150), default='General', nullable=False, index=True)
     subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id', ondelete='SET NULL'), nullable=True, index=True)
 
     subject = db.relationship('Subject', back_populates='questions')
@@ -154,11 +157,11 @@ class Attempt(db.Model):
     __tablename__ = 'attempts'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-    score = db.Column(db.Integer, nullable=False) # Number of correct answers
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    score = db.Column(db.Integer, nullable=False)
     total_questions = db.Column(db.Integer, nullable=False)
-    accuracy = db.Column(db.Float, nullable=False) # (score / total_questions) * 100
-    submitted_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    accuracy = db.Column(db.Float, nullable=False)  # (score / total_questions) * 100
+    submitted_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
 
     def to_dict(self):
         """Serializes attempt data."""
@@ -180,8 +183,11 @@ class Stats(db.Model):
     highest_score = db.Column(db.Integer, default=0, nullable=False)
     average_score = db.Column(db.Float, default=0.0, nullable=False)
     total_attempts = db.Column(db.Integer, default=0, nullable=False)
-    win_ratio = db.Column(db.Float, default=0.0, nullable=False) # (total correct answers / total attempted questions) * 100
+    win_ratio = db.Column(db.Float, default=0.0, nullable=False)
     current_streak = db.Column(db.Integer, default=0, nullable=False)
+    # Running totals — updated on every submit so win_ratio needs no aggregate query
+    total_correct = db.Column(db.Integer, default=0, nullable=False)
+    total_answered = db.Column(db.Integer, default=0, nullable=False)
 
     def to_dict(self):
         """Serializes aggregate stats data."""
@@ -191,5 +197,7 @@ class Stats(db.Model):
             "average_score": round(self.average_score, 2),
             "total_attempts": self.total_attempts,
             "win_ratio": round(self.win_ratio, 2),
-            "current_streak": self.current_streak
+            "current_streak": self.current_streak,
+            "total_correct": self.total_correct,
+            "total_answered": self.total_answered,
         }

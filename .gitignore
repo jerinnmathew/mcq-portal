@@ -1,36 +1,61 @@
-# Virtual Environment
+# ── Virtual Environments ──────────────────────────────────────
 venv/
 ENV/
 .venv/
 env/
 
-# Python Cache
+# ── Python Cache & Build Artifacts ───────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+dist/
+build/
+*.egg-info/
+.eggs/
+*.egg
+pip-wheel-metadata/
 
-# Environment Secrets
+# ── Environment & Secrets ─────────────────────────────────────
 .env
 .env.local
+.env.*.local
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
 
-# Databases
+# ── Databases & Local Storage ─────────────────────────────────
 *.db
 *.sqlite
+*.sqlite3
+instance/
 
-# IDE Settings
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Test & Coverage ───────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ── IDE & Editor Settings ─────────────────────────────────────
 .vscode/
 .idea/
 .project
 .pydevproject
+*.swp
+*.swo
+*~
 
-# System Files
+# ── OS Generated Files ────────────────────────────────────────
+.DS_Store
 Thumbs.db
 Desktop.ini
-.DS_Store
 
-# Docker
-Dockerfile
-docker-compose.yml
-
-# Keys & Certificates
-*.pem
+# ── Agent Config (local only) ─────────────────────────────────
+.agents/
+.gemini/
