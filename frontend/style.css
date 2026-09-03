@@ -431,6 +431,11 @@ footer .text-slate-500 {
     display: inline-block !important;
 }
 
+footer .footer-copyright {
+    color: #ffffff !important;
+    font-weight: 400 !important;
+}
+
 /* ─── Orange streak widget override ─── */
 .bg-orange-500\/10 { background-color: rgba(195,216,9,0.1) !important; }
 .border-orange-500\/20 { border-color: rgba(195,216,9,0.2) !important; }
