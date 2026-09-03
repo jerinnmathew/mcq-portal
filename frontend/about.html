@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - SEA-1 MCQ Battle Platform</title>
+    <meta name="description" content="Learn about the SEA-1 MCQ Battle Platform - a competitive arena to practice multiple-choice questions, track accuracy, build streaks, and excel technical skills.">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            blue: 'var(--primary-blue)',
+                            purple: 'var(--primary-purple)',
+                            dark: 'var(--primary-dark)',
+                        },
+                        accent: {
+                            cyan: 'var(--accent-cyan)',
+                            green: 'var(--accent-green)',
+                            orange: 'var(--accent-orange)',
+                            red: 'var(--accent-red)',
+                        },
+                        gray: {
+                            50: 'var(--gray-50)',
+                            100: 'var(--gray-100)',
+                            200: 'var(--gray-200)',
+                            300: 'var(--gray-300)',
+                            400: 'var(--gray-400)',
+                            500: 'var(--gray-500)',
+                            600: 'var(--gray-600)',
+                            700: 'var(--gray-700)',
+                            800: 'var(--gray-800)',
+                            900: 'var(--gray-900)',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Space Grotesk"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
+                        display: ['"Barlow Condensed"', '"Barlow"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom stylesheet overrides -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-[#222022] text-slate-100 min-h-screen bg-mesh flex flex-col">
+
+    <!-- Header Navbar Container -->
+    <header id="navbar-container" class="glass-panel sticky top-0 z-50 border-b border-white/5"></header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
+
+        <!-- Developer Profile Section -->
+        <section class="mb-8 rounded-2xl bg-[#2d2b2d] border border-white/5 p-8 md:p-12 shadow-xl">
+            <div class="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8 lg:gap-12 items-center">
+                <div class="flex justify-center lg:justify-start">
+                    <img src="assets/profile.svg" alt="Developer profile photo" class="w-36 h-36 rounded-3xl object-cover ring-4 ring-[#C3D809]/20 shadow-2xl">
+                </div>
+
+                <div>
+                    <div class="mb-4">
+                        <p class="text-sm text-slate-400 font-semibold mb-1">Developer</p>
+                        <div class="flex flex-wrap items-center gap-4">
+                            <h2 class="text-3xl sm:text-4xl font-normal font-display tracking-tight text-white">Jerin Mathew</h2>
+                            <a href="https://www.linkedin.com/in/jerinmathew2526?utm_source=share_via&amp;utm_content=profile&amp;utm_medium=member_android" target="_blank" rel="noopener noreferrer" aria-label="Connect on LinkedIn" title="Connect on LinkedIn" class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-[#0A66C2]/15 border border-[#0A66C2]/30 text-[#70b7f5] hover:bg-[#0A66C2]/25 hover:text-white transition-colors">
+                                <i class="fab fa-linkedin-in text-lg"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed max-w-2xl mb-6">
+                        Built with a focus on fast quiz sessions, clear feedback, and a rewarding learning experience.
+                    </p>
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Languages Used</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1.5 rounded-lg bg-[#222022] border border-white/10 text-sm text-slate-200">Python</span>
+                            <span class="px-3 py-1.5 rounded-lg bg-[#222022] border border-white/10 text-sm text-slate-200">Flask</span>
+                            <span class="px-3 py-1.5 rounded-lg bg-[#222022] border border-white/10 text-sm text-slate-200">JavaScript</span>
+                            <span class="px-3 py-1.5 rounded-lg bg-[#222022] border border-white/10 text-sm text-slate-200">HTML</span>
+                            <span class="px-3 py-1.5 rounded-lg bg-[#222022] border border-white/10 text-sm text-slate-200">CSS</span>
+                            <span class="px-3 py-1.5 rounded-lg bg-[#222022] border border-white/10 text-sm text-slate-200">SQL</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <p class="text-sm sm:text-base font-bold tracking-wider text-slate-200 text-center mb-20">
+            MCQ Portal is a part of <a href="https://padikkunnundo.app" target="_blank" rel="noopener noreferrer" class="text-[#C3D809] underline underline-offset-4 hover:text-[#d4eb1a] transition-colors">padikkunnundo.app</a>
+        </p>
+        
+        <!-- Hero Banner Section -->
+        <section class="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C3D809]/10 border border-[#C3D809]/20 text-[#C3D809] text-xs font-bold uppercase tracking-wider mb-6">
+                <i class="fas fa-[#C3D809] fa-bullseye text-[10px]"></i> Platform Overview
+            </div>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
+                Empowering Technical <span class="text-gradient-shine font-display">Excellence</span>
+            </h1>
+            <p class="text-lg text-slate-300 leading-relaxed">
+                The <strong class="text-white">SEA-1 MCQ Battle Platform</strong> is an interactive learning and technical challenge platform designed to help college students strengthen their understanding of core concepts through engaging multiple-choice quizzes.
+            </p>
+            <p class="text-lg text-slate-300 leading-relaxed mt-4">
+                Our platform enables students to <strong class="text-white">practice regularly, test their knowledge, benchmark their accuracy, maintain daily learning streaks, and track their progress</strong>. By combining learning with competition, SEA-1 MCQ Battle makes exam preparation more interactive, motivating, and effective.
+            </p>
+            <p class="text-lg text-slate-300 leading-relaxed mt-4">
+                Whether you are preparing for college examinations or competitive tests, the platform provides a smart environment to <strong class="text-white">Learn, Practice, Compete, and Improve.</strong>
+            </p>
+            <p class="text-lg font-bold text-[#C3D809] leading-relaxed mt-4">
+                Challenge Yourself. Track Your Progress. Master Your Concepts.
+            </p>
+        </section>
+
+        <!-- Key Features Grid -->
+        <section class="mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3">Why Train With Us?</h2>
+                <p class="text-sm text-slate-400">Everything you need to level up your technical knowledge</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Feature 1 -->
+                <div class="p-6 rounded-2xl bg-[#2d2b2d] border border-white/5 hover:border-[#C3D809]/30 transition-all duration-300 group hover:-translate-y-1 shadow-lg">
+                    <div class="w-12 h-12 rounded-xl bg-[#C3D809]/10 text-[#C3D809] flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Timed MCQ Battles</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Test your speed and precision under realistic timer constraints designed to simulate actual assessment conditions.
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="p-6 rounded-2xl bg-[#2d2b2d] border border-white/5 hover:border-[#C3D809]/30 transition-all duration-300 group hover:-translate-y-1 shadow-lg">
+                    <div class="w-12 h-12 rounded-xl bg-[#C3D809]/10 text-[#C3D809] flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Detailed Analytics</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Track your subject-level accuracy, review answer explanations, and monitor your score improvements over time.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="p-6 rounded-2xl bg-[#2d2b2d] border border-white/5 hover:border-[#C3D809]/30 transition-all duration-300 group hover:-translate-y-1 shadow-lg">
+                    <div class="w-12 h-12 rounded-xl bg-[#C3D809]/10 text-[#C3D809] flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Streak & XP System</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Earn XP with every correct response, build your daily activity streak, and unlock tiered achievement badges.
+                    </p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="p-6 rounded-2xl bg-[#2d2b2d] border border-white/5 hover:border-[#C3D809]/30 transition-all duration-300 group hover:-translate-y-1 shadow-lg">
+                    <div class="w-12 h-12 rounded-xl bg-[#C3D809]/10 text-[#C3D809] flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-[#C3D809] fa-shield-halved text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Unified SSO Auth</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Seamlessly log in using your single sign-on account from padikkunnundo.app with state security.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Tech Stack & Architecture Section -->
+        <section class="mb-20 rounded-2xl bg-[#2d2b2d] border border-white/5 p-8 md:p-12 shadow-xl relative overflow-hidden">
+            <div class="absolute -top-24 -right-24 h-64 w-64 bg-[#C3D809]/5 rounded-full blur-3xl"></div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center relative z-10">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-4">
+                        Built for Speed & Reliability
+                    </h2>
+                    <p class="text-sm text-slate-300 mb-6 leading-relaxed">
+                        The platform is engineered using modern lightweight web technologies to provide near-zero latency quiz sessions, instant score computations, and high availability.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3">
+                            <div class="mt-1 text-[#C3D809] text-sm"><i class="fas fa-check-circle"></i></div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Flask & SQLAlchemy Backend</h4>
+                                <p class="text-xs text-slate-400">Robust RESTful APIs with cached subject lookup and JWT authentication.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="mt-1 text-[#C3D809] text-sm"><i class="fas fa-check-circle"></i></div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Responsive Tailwind UI</h4>
+                                <p class="text-xs text-slate-400">Custom dark aesthetic designed for high focus and reduced visual fatigue.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="mt-1 text-[#C3D809] text-sm"><i class="fas fa-check-circle"></i></div>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Modular Architecture</h4>
+                                <p class="text-xs text-slate-400">Clean separation of admin management, quiz sessions, and user stats.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats summary block -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-6 rounded-xl bg-[#222022] border border-white/5 text-center">
+                        <div class="text-3xl font-extrabold text-[#C3D809] mb-1">100%</div>
+                        <div class="text-xs font-semibold text-slate-300">Free & Open Access</div>
+                    </div>
+                    <div class="p-6 rounded-xl bg-[#222022] border border-white/5 text-center">
+                        <div class="text-3xl font-extrabold text-[#C3D809] mb-1">Instant</div>
+                        <div class="text-xs font-semibold text-slate-300">Feedback & Answers</div>
+                    </div>
+                    <div class="p-6 rounded-xl bg-[#222022] border border-white/5 text-center">
+                        <div class="text-3xl font-extrabold text-[#C3D809] mb-1">Secure</div>
+                        <div class="text-xs font-semibold text-slate-300">Cookie JWT Tokens</div>
+                    </div>
+                    <div class="p-6 rounded-xl bg-[#222022] border border-white/5 text-center">
+                        <div class="text-3xl font-extrabold text-[#C3D809] mb-1">SSO</div>
+                        <div class="text-xs font-semibold text-slate-300">Padikkunnundo Integration</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="text-center py-10 px-6 rounded-2xl bg-gradient-to-r from-[#2d2b2d] via-[#383638] to-[#2d2b2d] border border-[#C3D809]/20 shadow-2xl">
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-4">Ready to test your skills?</h2>
+            <p class="text-sm text-slate-300 max-w-xl mx-auto mb-8">
+                Jump straight into a quiz session or view your dashboard stats to kick off your streak!
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="/dashboard" class="px-8 py-3.5 rounded-xl font-extrabold bg-[#C3D809] hover:bg-[#d4eb1a] text-[#111111] shadow-lg shadow-[#C3D809]/20 hover:shadow-[#C3D809]/30 transform hover:-translate-y-0.5 transition-all text-sm flex items-center gap-2">
+                    <i class="fas fa-play text-xs"></i> Go to Dashboard
+                </a>
+                <a href="/" class="px-8 py-3.5 rounded-xl font-extrabold bg-white/10 hover:bg-white/15 text-white border border-white/10 transition-all text-sm flex items-center gap-2">
+                    <i class="fas fa-home text-xs"></i> Return Home
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-white/5 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-4">
+            <div class="w-full flex flex-col md:flex-row items-center justify-between gap-4">
+                <span class="text-xs text-gray-500">&copy; 2026 SEA-1 MCQ Battle Platform. All rights reserved.</span>
+                <div class="flex gap-4 text-xs text-gray-400">
+                    <a href="/" class="hover:text-white transition-colors">Home</a>
+                    <a href="/about" class="text-[#C3D809] font-semibold">About</a>
+                    <a href="/dashboard" class="hover:text-white transition-colors">Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- App JS module -->
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initLandingProfile();
+        });
+    </script>
+</body>
+</html>

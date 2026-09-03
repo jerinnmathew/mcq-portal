@@ -170,6 +170,7 @@ function renderNavbar() {
     const currentPage = window.location.pathname;
     const isHome = currentPage === '/' || currentPage === '/index.html' || currentPage === '';
     const homeClass = isHome ? 'active-nav-btn' : '';
+    const aboutClass = (currentPage === '/about' || currentPage === '/about.html') ? 'active-nav-btn' : '';
     const adminClass = (currentPage === '/admin' || currentPage === '/admin.html') ? 'active-nav-btn' : '';
 
     navbarContainer.innerHTML = `
@@ -200,6 +201,7 @@ function renderNavbar() {
                         <div class="h-6 w-px bg-white/20 hidden md:block"></div>
                     ` : ''}
                     <a href="/" class="nav-btn ${homeClass}">Home</a>
+                    <a href="/about" class="nav-btn ${aboutClass}">About</a>
                     ${isLoggedIn && user && user.is_admin ? `
                         <a href="/admin" class="nav-btn ${adminClass}">Admin</a>
                     ` : ''}
@@ -226,6 +228,7 @@ function renderNavbar() {
             <div id="mobile-nav-panel" class="hidden md:hidden pb-3 border-t border-white/5 pt-3">
                 <div class="flex flex-col gap-1.5">
                     <a href="/" class="nav-btn ${homeClass} w-full justify-start">Home</a>
+                    <a href="/about" class="nav-btn ${aboutClass} w-full justify-start">About</a>
                     ${isLoggedIn && user && user.is_admin ? `
                         <a href="/admin" class="nav-btn ${adminClass} w-full justify-start">Admin</a>
                     ` : ''}

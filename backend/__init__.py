@@ -99,6 +99,13 @@ def create_app(config_class=Config):
     def serve_results():
         return _serve_protected('results.html', '/results')
 
+    @app.route('/about')
+    @app.route('/about.html')
+    def serve_about():
+        if request.path.endswith('.html'):
+            return redirect('/about', code=301)
+        return send_from_directory(app.static_folder, 'about.html')
+
     @app.route('/')
     @app.route('/index.html')
     def serve_index():
