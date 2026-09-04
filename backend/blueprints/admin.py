@@ -7,7 +7,7 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload, load_only
-from backend.models import db, MCQ, User, Attempt, Stats, Subject
+from backend.models import db, MCQ, User, Stats, Subject
 from backend.extensions import cache
 
 admin_bp = Blueprint('admin', __name__)
@@ -461,31 +461,6 @@ def get_users_list():
     ]
     return jsonify(user_list), 200
 
-
-@admin_bp.route('/attempts', methods=['GET'])
-def get_recent_attempts():
-    """Lists global recent attempts (excluding the admin) with associated student username."""
-    admin_user = os.environ.get('ADMIN_USERNAME')
-    if not admin_user:
-        return jsonify({"msg": "Admin not configured. Set ADMIN_USERNAME env var."}), 500
-
-    attempts = (
-        db.session.query(Attempt, User.username)
-        .join(User, Attempt.user_id == User.id)
-        .filter(User.username != admin_user)
-        .order_by(Attempt.submitted_at.desc())
-        .limit(100)
-        .all()
-    )
-
-                         
-    attempt_list = []
-    for att, username in attempts:
-        att_dict = att.to_dict()
-        att_dict["username"] = username
-        attempt_list.append(att_dict)
-        
-    return jsonify(attempt_list), 200
 
 
 @admin_bp.route('/import-pdf', methods=['POST'])

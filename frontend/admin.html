@@ -368,28 +368,6 @@
                 </div>
             </div>
 
-            <!-- Right: Global Recent Attempts -->
-            <div class="glass-panel rounded-2xl p-6 border border-white/5 space-y-4 h-fit">
-                <div class="border-b border-white/5 pb-2">
-                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider"><i class="fas fa-history text-purple-400 mr-2"></i> Global Quiz Attempts Log</h3>
-                </div>
-
-                <div class="overflow-x-auto max-h-[450px]">
-                    <table class="w-full text-left text-xs text-slate-300">
-                        <thead class="text-slate-400 uppercase border-b border-white/5 sticky top-0 bg-slate-900 z-10">
-                            <tr>
-                                <th class="py-3 px-4">Student</th>
-                                <th class="py-3 px-4">Date Submitted</th>
-                                <th class="py-3 px-4">Score</th>
-                                <th class="py-3 px-2">Accuracy</th>
-                            </tr>
-                        </thead>
-                        <tbody id="audit-attempts-tbody">
-                            <!-- JS filled -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
 
         <!-- TAB 4: MANAGE SUBJECTS -->
@@ -1028,19 +1006,6 @@
                         + '<td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded text-[9px] font-bold ' + getBadgeStyleClass(u.badge) + '">' + u.badge + '</span></td>'
                         + '<td class="py-2.5 px-2 font-bold text-orange-400"><i class="fas fa-calendar-alt mr-1"></i>' + (u.streak || 0) + '</td>'
                         + '<td class="py-2.5 px-4 font-extrabold text-blue-400">' + u.xp_points + ' XP</td>';
-                    tbody.appendChild(tr);
-                });
-            }
-            var attRes = await fetchAPI('/admin/attempts?_t=' + Date.now());
-            if (attRes && !attRes.error) {
-                var tbody = document.getElementById('audit-attempts-tbody');
-                tbody.innerHTML = '';
-                if (attRes.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-gray-500">No attempts logged yet.</td></tr>'; return; }
-                attRes.forEach(function(att) {
-                    var tr = document.createElement('tr'); tr.className = "border-b border-white/5 hover:bg-white/5 text-slate-300";
-                    tr.innerHTML = '<td class="py-2.5 px-4 font-semibold text-blue-400">' + att.username + '</td><td class="py-2.5 px-4 text-slate-400">' + formatDate(att.submitted_at) + '</td>'
-                        + '<td class="py-2.5 px-4 font-bold text-slate-100">' + att.score + ' / ' + att.total_questions + '</td>'
-                        + '<td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded text-[9px] font-bold ' + (att.accuracy >= 80 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20') + '">' + att.accuracy + '%</span></td>';
                     tbody.appendChild(tr);
                 });
             }

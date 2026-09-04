@@ -191,9 +191,6 @@ function renderNavbar() {
                                 <span class="text-[10px] text-white/70 leading-none mb-1">Streak: ${user.streak || 0}</span>
                                 <span class="text-xs font-semibold text-white leading-none">${(user.name && user.name.trim()) ? user.name.trim() : user.username}</span>
                             </div>
-                            <div class="h-8 w-8 rounded-full ${getBadgeClass(user.badge)} flex items-center justify-center font-bold text-white text-xs ring-2 ring-white/10">
-                                ${((user.name && user.name.trim()) ? user.name.trim() : user.username)[0].toUpperCase()}
-                            </div>
                             <button onclick="Auth.logout()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-white transition-all cursor-pointer">
                                 <i class="fas fa-sign-out-alt text-xs"></i> <span class="hidden sm:inline">Logout</span>
                             </button>
@@ -211,9 +208,6 @@ function renderNavbar() {
                 <div class="flex md:hidden items-center gap-1.5 ml-auto">
                     ${isLoggedIn && user ? `
                         <span class="text-xs font-semibold text-white truncate max-w-[120px]">${(user.name && user.name.trim()) ? user.name.trim() : user.username}</span>
-                        <div class="h-7 w-7 rounded-full ${getBadgeClass(user.badge)} flex items-center justify-center font-bold text-white text-[10px] ring-2 ring-white/10 shrink-0">
-                            ${((user.name && user.name.trim()) ? user.name.trim() : user.username)[0].toUpperCase()}
-                        </div>
                         <button onclick="Auth.logout()" class="p-1.5 rounded-lg text-xs bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-white transition-all cursor-pointer" title="Logout">
                             <i class="fas fa-sign-out-alt text-xs"></i>
                         </button>
