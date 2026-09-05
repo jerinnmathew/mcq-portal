@@ -81,13 +81,23 @@ def create_app(config_class=Config):
             return redirect('/admin', code=301)
         user = _get_authenticated_user()
         admin_username = os.environ.get('ADMIN_USERNAME')
-        if not user or not admin_username or user.username != admin_username:
+        if not user:
+            return redirect('/admin-login', code=302)
+        if not admin_username or user.username != admin_username:
             return redirect(padikkunnundo_url, code=302)
         resp = app.make_response(send_from_directory(app.static_folder, 'admin.html'))
         resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
         resp.headers['Pragma'] = 'no-cache'
         resp.headers['Expires'] = '0'
         return resp
+
+    @app.route('/admin-login')
+    def serve_admin_login():
+        user = _get_authenticated_user()
+        admin_username = os.environ.get('ADMIN_USERNAME')
+        if user and admin_username and user.username == admin_username:
+            return redirect('/admin', code=302)
+        return send_from_directory(app.static_folder, 'admin-login.html')
 
     @app.route('/quiz')
     @app.route('/quiz.html')
@@ -271,7 +281,18 @@ def seed_admin(app):
             db.session.rollback()
             app.logger.error(f"Failed to migrate legacy admin: {e}")
 
-    if not User.query.filter_by(username=admin_user).first():
+    existing_admin = User.query.filter_by(username=admin_user).first()
+    if existing_admin:
+        try:
+            existing_admin.set_password(admin_pass)
+            db.session.commit()
+            app.logger.info(f"Synchronized admin credentials: {admin_user}")
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Failed to synchronize admin: {e}")
+        return
+
+    if not existing_admin:
         try:
             new_admin = User(username=admin_user)
             new_admin.set_password(admin_pass)

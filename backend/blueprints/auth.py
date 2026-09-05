@@ -1,5 +1,10 @@
-from flask import Blueprint, jsonify
-from flask_jwt_extended import unset_jwt_cookies
+import os
+from datetime import datetime, timedelta, timezone
+
+import jwt as pyjwt
+from flask import Blueprint, current_app, jsonify, make_response, request
+from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies
+from backend.models import User, db
 from backend.utils.helpers import login_required, rate_limit
 
 auth_bp = Blueprint('auth', __name__)
@@ -21,6 +26,49 @@ def login():
     return jsonify({
         "msg": "This site uses SSO only. Please sign in through padikkunnundo.app."
     }), 403
+
+
+@auth_bp.route('/admin-login', methods=['POST'])
+@rate_limit(limit=5, period=60)
+def admin_login():
+    """Authenticate the configured administrator for local admin-panel access."""
+    data = request.get_json(silent=True) or {}
+    username = (data.get('username') or '').strip()
+    password = data.get('password') or ''
+    admin_username = os.environ.get('ADMIN_USERNAME', '').strip()
+    admin_password = os.environ.get('ADMIN_PASSWORD', '')
+
+    if not admin_username or not admin_password:
+        return jsonify({"msg": "Admin login is not configured on the server."}), 503
+
+    if username != admin_username or password != admin_password:
+        return jsonify({"msg": "Invalid admin credentials."}), 401
+
+    user = User.query.filter_by(username=admin_username).first()
+    if not user or not user.check_password(password):
+        return jsonify({"msg": "Admin account is not initialized. Restart the server."}), 503
+
+    access_token = create_access_token(identity=str(user.id))
+    session_token = pyjwt.encode(
+        {
+            "sub": str(user.id),
+            "exp": datetime.now(timezone.utc) + timedelta(days=30),
+        },
+        current_app.config["SECRET_KEY"],
+        algorithm="HS256",
+    )
+
+    response = make_response(jsonify({"msg": "Admin login successful"}))
+    set_access_cookies(response, access_token)
+    response.set_cookie(
+        "session_token",
+        session_token,
+        max_age=30 * 24 * 3600,
+        httponly=True,
+        samesite="Lax",
+        secure=not current_app.debug,
+    )
+    return response, 200
 
 
 @auth_bp.route('/profile', methods=['GET'])
